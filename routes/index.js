@@ -5,7 +5,7 @@ var child_process = require('child_process');
 
 function getOsInfo() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/' + _osId + '/get_os_info.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/os/get_os_info.sh', function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
@@ -53,7 +53,7 @@ function getRedisInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
 
-        child_process.exec('./shell_scripts/' + _osId + '/check_redis.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/redis/check_redis.sh', function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
@@ -81,17 +81,11 @@ function getRedisInfo() {
 
 function getRedisStatus() {
     return new Promise(function (fulfill, reject) {
-        var results = {};
-
         child_process.exec(_redisPath + '/src/redis-cli ping', function (err, stdout, stderr) {
-            if (err) {
-                reject(err);
-            }
-
-            if (stdout == "") {
-
-            } else if (stdout) {
-
+            if(stdout == "PONG"){
+                fulfill(1)
+            }else{
+                fulfill(0)
             }
         });
     });
@@ -162,22 +156,20 @@ router.get('/', function (req, res) {
         getPostgresInfo(),
         getRedisInfo(),
         getNginxInfo(),
-        getPm2Info()
+        getPm2Info(),
+        getRedisStatus()
     ]).then(function (results) {
         res.render('index', {
             os_info: results[0],
             postgres: results[1],
             redis: results[2],
             nginx: results[3],
-            pm2: results[4]
+            pm2: results[4],
+            redis_status: results[5]
         })
     }).catch(function (err) {
         res.send(err);
     });
-
-    //child_process.exec(_redisPath + '/src/redis-cli ping', function (err, stdout, stderr) {
-    //    console.log(err, stdout, stderr);
-    //});
 });
 
 module.exports = router;

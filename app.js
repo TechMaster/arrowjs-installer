@@ -13,13 +13,13 @@ var postgres = require('./routes/postgres');
 var app = express();
 
 // Get OS ID
-global._osId = null;
-child_process.exec('./shell_scripts/get_os_id.sh', function (err, stdout, stderr) {
-    if (stdout) {
-        console.log(stdout);
-        global._osId = stdout;
-    }
-});
+//global._osId = null;
+//child_process.exec('./shell_scripts/get_os_id.sh', function (err, stdout, stderr) {
+//    if (stdout) {
+//        console.log(stdout);
+//        global._osId = stdout;
+//    }
+//});
 
 // Get OS Architecture
 global._osArchitecture = '32';
@@ -34,7 +34,7 @@ global._installingPostgres = false;
 global._installingRedis = false;
 global._installingNginx = false;
 global._installingPm2 = false;
-global._redisPath = '~';
+global._redisPath = '~/redis-3.0.1';    // Reference to install_redis.sh
 
 // View engine setup
 app.set('view engine', 'html');
