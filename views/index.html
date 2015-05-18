@@ -1,5 +1,9 @@
 {% extends 'layout.html' %}
 
+{% block style %}
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
     <div>
         <h3>Server information</h3>
@@ -8,10 +12,12 @@
 
     <div>
         <h3>PostgreSQL</h3>
-        <pre>{{ postgres.info }}</pre>
+        <pre>{{ postgres_info.info }}</pre>
 
         {% if postgres.need_install %}
-            <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">Install</button>
+            <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
+                Install
+            </button>
 
             <div id="postgres-status" style="margin-bottom: 15px; font-size: 24px;"></div>
 
@@ -32,14 +38,18 @@
         <pre>{{ redis.info }}</pre>
 
         {% if redis.need_install %}
-            <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install</button>
+            <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install
+            </button>
             <div id="redis-status" style="margin-bottom: 15px; font-size: 24px;"></div>
 
             <pre id="redis-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
         {% else %}
-            <button type="button" class="btn btn-success btn-start-redis">Start</button>
-            <button type="button" class="btn btn-warning btn-stop-redis">Stop</button>
+            <input type="checkbox" checked data-toggle="toggle">
+
+            {% if redis_status %}
+                <button type="button" class="btn btn-warning btn-restart-redis">Restart</button>
+            {% endif %}
         {% endif %}
     </div>
 
@@ -48,7 +58,8 @@
         <pre>{{ nginx.info }}</pre>
 
         {% if nginx.need_install %}
-            <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install</button>
+            <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install
+            </button>
             <div id="nginx-status" style="margin-bottom: 15px; font-size: 24px;"></div>
 
             <pre id="nginx-process"
@@ -83,5 +94,6 @@
 {% block scripts %}
     <script type="text/javascript" src="/javascripts/pace.min.js"></script>
     <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/javascripts/main.js"></script>
 {% endblock %}
