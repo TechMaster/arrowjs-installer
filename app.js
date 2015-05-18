@@ -13,19 +13,14 @@ var postgres = require('./routes/postgres');
 var app = express();
 
 // Get OS ID
-//global._osId = null;
-//child_process.exec('./shell_scripts/get_os_id.sh', function (err, stdout, stderr) {
-//    if (stdout) {
-//        console.log(stdout);
-//        global._osId = stdout;
-//    }
-//});
-
-// Get OS Architecture
-global._osArchitecture = '32';
-child_process.exec('uname -m | grep 64', function (err, stdout, stderr) {
+global._osname = null;
+global._osversion = null;
+child_process.exec('./shell_scripts/os/get_os_id.sh', function (err, stdout, stderr) {
     if (stdout) {
-        global._osArchitecture = '64';
+        console.log(stdout);
+        var os_id = stdout.split('-');
+        global._osname = os_id[0];
+        global._osversion = os_id[1];
     }
 });
 

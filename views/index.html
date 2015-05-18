@@ -12,7 +12,7 @@
 
     <div>
         <h3>PostgreSQL</h3>
-        <pre>{{ postgres_info.info }}</pre>
+        <pre>{{ postgres.info }}</pre>
 
         {% if postgres.need_install %}
             <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
@@ -27,9 +27,6 @@
             <a href="/postgres">
                 <button type="button" class="btn btn-primary">Configure</button>
             </a>
-
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
         {% endif %}
     </div>
 
@@ -45,11 +42,9 @@
             <pre id="redis-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
         {% else %}
-            <input type="checkbox" checked data-toggle="toggle">
+            <input type="checkbox" id="toggle-redis" data-toggle="toggle" {% if redis_status %}checked="checked"{% endif %}/>
 
-            {% if redis_status %}
-                <button type="button" class="btn btn-warning btn-restart-redis">Restart</button>
-            {% endif %}
+            {#<button type="button" class="btn btn-warning btn-restart-redis {% if redis_status == 0 %}disabled{% endif %}" onclick="restartRedis()">Restart</button>#}
         {% endif %}
     </div>
 
@@ -68,9 +63,6 @@
             <a href="/nginx">
                 <button type="button" class="btn btn-primary">Configure</button>
             </a>
-
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
         {% endif %}
     </div>
 
@@ -85,8 +77,7 @@
             <pre id="pm2-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
         {% else %}
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
+
         {% endif %}
     </div>
 {% endblock %}

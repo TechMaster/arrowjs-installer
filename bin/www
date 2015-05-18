@@ -8,6 +8,7 @@ var debug = require('debug')('arrowjs-installer:server');
 var http = require('http');
 var socket = require('socket.io')();
 var socket_ins = require('../lib/socket_ins.js');
+var socket_services = require('../lib/socket_services.js');
 
 /**
  * Get port from environment and store in Express.
@@ -31,7 +32,6 @@ server.on('listening', onListening);
  * Get event install from user
  */
 socketIo = socket.listen(server);
-
 socketIo.on('connection', function (socket) {
     socket.emit('checking', {
         postgres: _installingPostgres,
@@ -58,6 +58,14 @@ socketIo.on('connection', function (socket) {
     socket.on('install_pm2', function (msg) {
         socket_ins.installPm2(socket);
         _installingPm2 = true;
+    });
+
+    socket.on('start_redis', function (msg) {
+        socket_services.startRedis(socket);
+    });
+
+    socket.on('stop_redis', function (msg) {
+        socket_services.stopRedis(socket);
     });
 });
 

@@ -1,22 +1,22 @@
 var socket = io();
 
 socket.on('checking', function (data) {
-    if(data.postgres){
+    if (data.postgres) {
         $('.btn-install-postgres').remove();
         $('#postgres-status').text("Postgres are installing ...").css('color', 'blue');
     }
 
-    if(data.redis){
+    if (data.redis) {
         $('.btn-install-redis').remove();
         $('#redis-status').text("Redis are installing ...").css('color', 'blue');
     }
 
-    if(data.nginx){
+    if (data.nginx) {
         $('.btn-install-nginx').remove();
         $('#nginx-status').text("Nginx are installing ...").css('color', 'blue');
     }
 
-    if(data.pm2){
+    if (data.pm2) {
         $('.btn-install-pm2').remove();
         $('#pm2-status').text("PM2 are installing ...").css('color', 'blue');
     }
@@ -89,4 +89,17 @@ function installPm2(button) {
 
     socket.emit('install_pm2', '');
 }
+
+function restartRedis() {
+    socket.emit('restart_redis', '');
+}
+
+$('#toggle-redis').on('change', function () {
+    //$('.btn-restart-redis').toggleClass('disabled');
+    if ($(this).is(':checked')) {
+        socket.emit('start_redis', '');
+    } else {
+        socket.emit('stop_redis', '');
+    }
+});
 

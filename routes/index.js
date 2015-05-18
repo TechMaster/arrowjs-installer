@@ -5,13 +5,13 @@ var child_process = require('child_process');
 
 function getOsInfo() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/os/get_os_info.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/os/get_os_info.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
 
             if (stdout) {
-                fulfill(stdout + 'Architecture: ' + _osArchitecture + 'bit');
+                fulfill(stdout);
             }
         });
     });
@@ -21,29 +21,23 @@ function getPostgresInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
 
-        child_process.exec('which psql', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/postgres/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
+                reject(err);
+            }
+
+            if (stdout) {
+                results = {
+                    'info': 'Postgres has been installed \nVersion:' + stdout,
+                    'need_install': 0
+                };
+                fulfill(results);
+            } else {
                 results = {
                     'info': 'Postgres has not been installed.',
                     'need_install': 1
                 };
                 fulfill(results);
-            }
-
-            if (stdout) {
-                child_process.exec('psql --version', function (err, stdout, stderr) {
-                    if (err) {
-                        reject(err);
-                    }
-
-                    if (stdout) {
-                        results = {
-                            'info': 'Postgres has been installed \n' + stdout,
-                            'need_install': 0
-                        };
-                        fulfill(results);
-                    }
-                });
             }
         });
     });
@@ -53,7 +47,7 @@ function getRedisInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
 
-        child_process.exec('./shell_scripts/redis/check_redis.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/redis/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
@@ -82,9 +76,9 @@ function getRedisInfo() {
 function getRedisStatus() {
     return new Promise(function (fulfill, reject) {
         child_process.exec(_redisPath + '/src/redis-cli ping', function (err, stdout, stderr) {
-            if(stdout == "PONG"){
+            if (stdout == "PONG") {
                 fulfill(1)
-            }else{
+            } else {
                 fulfill(0)
             }
         });
