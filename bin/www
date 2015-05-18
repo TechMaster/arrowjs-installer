@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+var app = require('../app');
+var debug = require('debug')('arrowjs-installer:server');
+var http = require('http');
+var socket = require('socket.io')();
+var socket_ins = require('../lib/socket_ins.js');
+
+/**
+ * Get port from environment and store in Express.
+ */
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Get event install from user
+ */
+socketIo = socket.listen(server);
+
+socketIo.on('connection', function (socket) {
+    socket.emit('checking', {
+        postgres: _installingPostgres,
+        redis: _installingRedis,
+        nginx: _installingNginx,
+        pm2: _installingPm2
+    });
+
+    socket.on('install_postgres', function (msg) {
+        socket_ins.installPostgres(socket);
+        _installingPostgres = true;
+    });
+
+    socket.on('install_redis', function (msg) {
+        socket_ins.installRedis(socket);
+        _installingRedis = true;
+    });
+
+    socket.on('install_nginx', function (msg) {
+        socket_ins.installNginx(socket);
+        _installingNginx = true;
+    });
+
+    socket.on('install_pm2', function (msg) {
+        socket_ins.installPm2(socket);
+        _installingPm2 = true;
+    });
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        return val;
+    }
+
+    if (port >= 0) {
+        return port;
+    }
+
+    return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // Handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+}
