@@ -43,6 +43,18 @@ function getPostgresInfo() {
     });
 }
 
+function getPostgresStatus(){
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('/src/redis-cli ping', function (err, stdout, stderr) {
+            if (stdout == "PONG") {
+                fulfill(1)
+            } else {
+                fulfill(0)
+            }
+        });
+    });
+}
+
 function getRedisInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
@@ -76,7 +88,7 @@ function getRedisInfo() {
 function getRedisStatus() {
     return new Promise(function (fulfill, reject) {
         child_process.exec(_redisPath + '/src/redis-cli ping', function (err, stdout, stderr) {
-            if (stdout == "PONG") {
+            if (stdout.trim() == "PONG") {
                 fulfill(1)
             } else {
                 fulfill(0)
@@ -89,29 +101,23 @@ function getNginxInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
 
-        child_process.exec('which nginx', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/nginx/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
+                reject(err);
+            }
+
+            if (stdout) {
+                results = {
+                    'info': 'Nginx has been installed \nVersion:' + stdout,
+                    'need_install': 0
+                };
+                fulfill(results);
+            } else {
                 results = {
                     'info': 'Nginx has not been installed.',
                     'need_install': 1
                 };
                 fulfill(results);
-            }
-
-            if (stdout) {
-                child_process.exec('nginx -v', function (err, stdout, stderr) {
-                    if (err) {
-                        reject(err);
-                    }
-
-                    if (stderr) {
-                        results = {
-                            'info': 'Nginx has been installed \n' + stderr,
-                            'need_install': 0
-                        };
-                        fulfill(results);
-                    }
-                });
             }
         });
     });
@@ -121,20 +127,21 @@ function getPm2Info() {
     return new Promise(function (fulfill, reject) {
         var results = {};
 
-        child_process.exec('npm list -g | grep pm2@', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/pm2/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
-                results = {
-                    'info': 'PM2 has not been installed.',
-                    'need_install': 1
-                };
-                fulfill(results);
+                reject(err);
             }
 
             if (stdout) {
-                var version = stdout.trim().split('@')[1];
                 results = {
-                    'info': 'PM2 has been installed \nVersion: ' + version,
+                    'info': 'PM2 has been installed \nVersion:' + stdout,
                     'need_install': 0
+                };
+                fulfill(results);
+            } else {
+                results = {
+                    'info': 'PM2 has not been installed.',
+                    'need_install': 1
                 };
                 fulfill(results);
             }

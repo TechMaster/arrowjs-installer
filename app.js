@@ -17,7 +17,6 @@ global._osname = null;
 global._osversion = null;
 child_process.exec('./shell_scripts/os/get_os_id.sh', function (err, stdout, stderr) {
     if (stdout) {
-        console.log(stdout);
         var os_id = stdout.split('-');
         global._osname = os_id[0];
         global._osversion = os_id[1];

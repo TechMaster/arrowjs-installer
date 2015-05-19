@@ -27,6 +27,9 @@
             <a href="/postgres">
                 <button type="button" class="btn btn-primary">Configure</button>
             </a>
+
+            <input type="checkbox" id="toggle-postgres" data-toggle="toggle" {% if postgres_status %}checked="checked"{% endif %}/>
+            {#<button type="button" class="btn btn-warning btn-restart-redis {% if redis_status == 0 %}disabled{% endif %}" onclick="restartRedis()">Restart</button>#}
         {% endif %}
     </div>
 
@@ -42,9 +45,9 @@
             <pre id="redis-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
         {% else %}
-            <input type="checkbox" id="toggle-redis" data-toggle="toggle" {% if redis_status %}checked="checked"{% endif %}/>
+            Status: <span class="redis-active-status">{% if redis_status %}Active{% else %}Inactive{% endif %}</span> <span>&nbsp;&nbsp;&nbsp;</span>
 
-            {#<button type="button" class="btn btn-warning btn-restart-redis {% if redis_status == 0 %}disabled{% endif %}" onclick="restartRedis()">Restart</button>#}
+            <input type="checkbox" id="toggle-redis" data-toggle="toggle" {% if redis_status %}checked="checked"{% endif %}/>
         {% endif %}
     </div>
 

@@ -3,17 +3,18 @@ os_id=$1
 os_version=$2
 
 function installPostgres {
-  case "$os_id" in
-      ubuntu)
-        installPostgresUbuntu
-      ;;
-      centos)
-        installPostgresCentOS
-      ;;
-      fedora)
-        installPostgresCentOS7
-      ;;
-  esac
+    # Install Postgres with specific OS
+    case "$os_id" in
+        ubuntu)
+            installPostgresUbuntu
+        ;;
+        centos)
+            installPostgresCentOS
+        ;;
+        fedora)
+            installPostgresCentOS7
+        ;;
+    esac
 }
 
 function installPostgresUbuntu {
@@ -21,6 +22,7 @@ function installPostgresUbuntu {
 }
 
 function installPostgresCentOS {
+    # Install Postgres with specific OS version of CentOS
     case "$os_version" in
         6)
             installPostgresCentOS6
@@ -35,6 +37,7 @@ function installPostgresCentOS {
 }
 
 function checkCentOSBaseRepo {
+    # Exclude old repo of Postgres
     if [ -f "/etc/yum.repos.d/CentOS-Base.repo" ]; then
         sed -i '/.*exclude=postgresql\*.*/d' /etc/yum.repos.d/CentOS-Base.repo
         sed -i '/\[base\]/a exclude=postgresql\*' /etc/yum.repos.d/CentOS-Base.repo
