@@ -126,8 +126,8 @@ chmod -R u+x shell_scripts
 
 # Open port for Web installer
 os=`./shell_scripts/os/get_os_id.sh`
-os_name=`echo $os | awk -F"-" {print $1}`
-os_version=`echo $os | awk -F"-" {print $1}`
+os_name=`echo $os | awk -F"-" '{print $1}'`
+os_version=`echo $os | awk -F"-" '{print $2}'`
 ./shell_scripts/os/open_port.sh $os_name $os_version 3000
 
 # Run Web installer
