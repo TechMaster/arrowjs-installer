@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h3>Basic config</h3>
+
+    {{ msg | safe }}
+
+    <form action="" method="post">
+        <div style="border: 1px solid #ddd; padding: 10px;">
+            <h4>Create new file config</h4>
+
+            <div class="form-group">
+                <label class="control-label" for="file_name">File name (*.conf)</label>
+                <input type="text" name="file_name" id="file_name" class="form-control"
+                       placeholder="Example: test.conf" style="width: 50%;"/>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="address2">Server name</label>
+                <input type="text" name="server_name" id="server_name" class="form-control"
+                       placeholder="Example: arrowjs.io" style="width: 50%;"/>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="listen_port">Listen port</label>
+                <input type="text" name="listen_port" id="listen_port" class="form-control"
+                       placeholder="Example: 3000" style="width: 50%;"/>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="root_path">Project path (inside public folder)</label>
+                <input type="text" name="root_path" id="root_path" class="form-control"
+                       placeholder="Example: /home/robin/arrowjs.io/public" style="width: 50%;"/>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="upstream">Upstream</label>
+                <input type="text" name="upstream" id="upstream" class="form-control"
+                       placeholder="Example: arrowjs" style="width: 50%;"/>
+            </div>
+        </div>
+
+        <p></p>
+
+        <p></p>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">SAVE CHANGED</button>
+            <a href="/" class="btn btn-default">CANCEL</a>
+        </div>
+    </form>
+
+{% endblock %}

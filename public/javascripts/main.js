@@ -1,13 +1,17 @@
 var postgres_process = $('#postgres-process');
 var postgres_status = $('#postgres-status');
+var postgres_toggle = $('#toggle-postgres');
+var postgres_active_status = $('#postgres-active-status');
 
 var redis_process = $('#redis-process');
 var redis_status = $('#redis-status');
 var redis_toggle = $('#toggle-redis');
-var redis_active_status = $('.redis-active-status');
+var redis_active_status = $('#redis-active-status');
 
 var nginx_process = $('#nginx-process');
 var nginx_status = $('#nginx-status');
+var nginx_toggle = $('#toggle-nginx');
+var nginx_active_status = $('#nginx-active-status');
 
 var pm2_process = $('#pm2-process');
 var pm2_status = $('#pm2-status');
@@ -104,26 +108,81 @@ function installPm2(button) {
     socket.emit('install_pm2', '');
 }
 
-redis_toggle.on('change', function () {
-    //$('.btn-restart-redis').toggleClass('disabled');
+postgres_toggle.on('change', function () {
+    postgres_toggle.bootstrapToggle('disable');
 
-    //todo: Lay duoc ket qua tra ve tu socket io khi da start service xong
+    if ($(this).is(':checked')) {
+        socket.emit('start_postgres', '', function (result) {
+            if(result == 'success'){
+                postgres_active_status.text('Active');
+            }else{
+                alert(result);
+            }
+
+            postgres_toggle.bootstrapToggle('enable');
+        });
+    } else {
+        socket.emit('stop_postgres', '', function (result) {
+            if(result == 'success'){
+                postgres_active_status.text('Inactive');
+            }else{
+                alert(result);
+            }
+
+            postgres_toggle.bootstrapToggle('enable');
+        });
+    }
+});
+
+redis_toggle.on('change', function () {
+    redis_toggle.bootstrapToggle('disable');
+
     if ($(this).is(':checked')) {
         socket.emit('start_redis', '', function (result) {
-            console.log('start result:' + result);
+            if(result == 'success'){
+                redis_active_status.text('Active');
+            }else{
+                alert(result);
+            }
+
+            redis_toggle.bootstrapToggle('enable');
         });
     } else {
         socket.emit('stop_redis', '', function (result) {
-            console.log('stop result:' + result);
+            if(result == 'success'){
+                redis_active_status.text('Inactive');
+            }else{
+                alert(result);
+            }
+
+            redis_toggle.bootstrapToggle('enable');
         });
     }
+});
 
-    //redis_toggle.bootstrapToggle('disable');
+nginx_toggle.on('change', function () {
+    nginx_toggle.bootstrapToggle('disable');
 
-    //if ($(this).is(':checked')) {
-    //    socket.emit('start_redis', '');
-    //} else {
-    //    socket.emit('stop_redis', '');
-    //}
+    if ($(this).is(':checked')) {
+        socket.emit('start_nginx', '', function (result) {
+            if(result == 'success'){
+                nginx_active_status.text('Active');
+            }else{
+                alert(result);
+            }
+
+            nginx_toggle.bootstrapToggle('enable');
+        });
+    } else {
+        socket.emit('stop_nginx', '', function (result) {
+            if(result == 'success'){
+                nginx_active_status.text('Inactive');
+            }else{
+                alert(result);
+            }
+
+            nginx_toggle.bootstrapToggle('enable');
+        });
+    }
 });
 

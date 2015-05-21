@@ -7,9 +7,9 @@ var app = require('../app');
 var debug = require('debug')('arrowjs-installer:server');
 var http = require('http');
 var io = require('socket.io')();
-var socket_ins = require('../lib/socket_ins.js');
-var socket_services = require('../lib/socket_services.js');
-var child_process = require('child_process');
+var socket_install = require('../lib/socket_install.js');
+var socket_active = require('../lib/socket_active.js');
+
 /**
  * Get port from environment and store in Express.
  */
@@ -41,68 +41,47 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('install_postgres', function (msg) {
-        socket_ins.installPostgres(socket);
+        socket_install.postgres(socket);
         _installingPostgres = true;
     });
 
     socket.on('install_redis', function (msg) {
-        socket_ins.installRedis(socket);
+        socket_install.redis(socket);
         _installingRedis = true;
     });
 
     socket.on('install_nginx', function (msg) {
-        socket_ins.installNginx(socket);
+        socket_install.nginx(socket);
         _installingNginx = true;
     });
 
     socket.on('install_pm2', function (msg) {
-        socket_ins.installPm2(socket);
+        socket_install.pm2(socket);
         _installingPm2 = true;
     });
 
+    socket.on('start_postgres', function (msg, callback) {
+        socket_active.postgres(socket, callback, 'start');
+    });
+
+    socket.on('stop_postgres', function (msg, callback) {
+        socket_active.postgres(socket, callback, 'stop');
+    });
+
     socket.on('start_redis', function (msg, callback) {
-        setTimeout(function(){
-            callback('start success');
-            console.log('callback for start');
-        },3000);
-
-        //todo: tra ve ket qua cho client sau khi start service xong (dung child_process goi bash script)
-
-        //async
-        //child_process.exec('./shell_scripts/redis/toggle_active.sh ' + _redisPath + ' start', function (err, stdout, stderr) {
-        //
-        //    console.log('callback for start');
-        //});
-
-        //sync
-        //var test = child_process.execSync('./shell_scripts/redis/toggle_active.sh ' + _redisPath + ' start');
-        //console.log(test);
-        //callback('start success');
-
-
-        //socket_services.startRedis(socket)
+        socket_active.redis(socket, callback, 'start');
     });
 
     socket.on('stop_redis', function (msg, callback) {
-        setTimeout(function(){
-            callback('stop success');
-            console.log('callback for stop');
-        },3000);
+        socket_active.redis(socket, callback, 'stop');
+    });
 
-        //todo: tra ve ket qua cho client sau khi stop service xong (dung child_process goi bash script)
+    socket.on('start_nginx', function (msg, callback) {
+        socket_active.nginx(socket, callback, 'start');
+    });
 
-        //async
-        //child_process.exec('./shell_scripts/redis/toggle_active.sh ' + _redisPath + ' stop', function (err, stdout, stderr) {
-        //
-        //    console.log('callback for stop');
-        //});
-
-        //sync
-        //var test = child_process.execSync('./shell_scripts/redis/toggle_active.sh ' + _redisPath + ' stop');
-        //console.log(test);
-        //callback('stop success');
-
-
+    socket.on('stop_nginx', function (msg, callback) {
+        socket_active.nginx(socket, callback, 'stop');
     });
 });
 

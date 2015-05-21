@@ -7,7 +7,7 @@ if [ -z "$pm2" ]; then
 else
     # Get pm2 version
     version=`echo $pm2 | awk -F"@" '{print $2}'`
-    echo -n ${version:18}
+    echo -n $version
 fi
 
 

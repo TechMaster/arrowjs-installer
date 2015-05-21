@@ -43,13 +43,17 @@ function getPostgresInfo() {
     });
 }
 
-function getPostgresStatus(){
+function checkPostgresActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('/src/redis-cli ping', function (err, stdout, stderr) {
-            if (stdout == "PONG") {
-                fulfill(1)
-            } else {
-                fulfill(0)
+        child_process.exec('./shell_scripts/postgres/check_active.sh', function (err, stdout, stderr) {
+            if(err){
+                reject(err);
+            }
+
+            if(stdout){
+                fulfill(1);
+            }else{
+                fulfill(0);
             }
         });
     });
@@ -85,9 +89,9 @@ function getRedisInfo() {
     });
 }
 
-function getRedisStatus() {
+function checkRedisActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec(_redisPath + '/src/redis-cli ping', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/redis/check_active.sh ' + _redisPath, function (err, stdout, stderr) {
             if (stdout.trim() == "PONG") {
                 fulfill(1)
             } else {
@@ -118,6 +122,22 @@ function getNginxInfo() {
                     'need_install': 1
                 };
                 fulfill(results);
+            }
+        });
+    });
+}
+
+function checkNginxActive() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/nginx/check_active.sh', function (err, stdout, stderr) {
+            if(err){
+                reject(err);
+            }
+
+            if(stdout){
+                fulfill(1);
+            }else{
+                fulfill(0);
             }
         });
     });
@@ -158,7 +178,9 @@ router.get('/', function (req, res) {
         getRedisInfo(),
         getNginxInfo(),
         getPm2Info(),
-        getRedisStatus()
+        checkPostgresActive(),
+        checkRedisActive(),
+        checkNginxActive()
     ]).then(function (results) {
         res.render('index', {
             os_info: results[0],
@@ -166,7 +188,9 @@ router.get('/', function (req, res) {
             redis: results[2],
             nginx: results[3],
             pm2: results[4],
-            redis_status: results[5]
+            postgres_active: results[5],
+            redis_active: results[6],
+            nginx_active: results[7]
         })
     }).catch(function (err) {
         res.send(err);

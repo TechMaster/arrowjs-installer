@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block style %}
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -28,8 +28,13 @@
                 <button type="button" class="btn btn-primary">Configure</button>
             </a>
 
-            <input type="checkbox" id="toggle-postgres" data-toggle="toggle" {% if postgres_status %}checked="checked"{% endif %}/>
-            {#<button type="button" class="btn btn-warning btn-restart-redis {% if redis_status == 0 %}disabled{% endif %}" onclick="restartRedis()">Restart</button>#}
+            <p></p>
+            <div>
+                Status: <span id="postgres-active-status">{% if postgres_active %}Active{% else %}Inactive{% endif %}</span>
+                <span>&nbsp;&nbsp;&nbsp;</span>
+                <input type="checkbox" id="toggle-postgres" data-toggle="toggle"
+                       {% if postgres_active %}checked="checked"{% endif %}/>
+            </div>
         {% endif %}
     </div>
 
@@ -45,9 +50,14 @@
             <pre id="redis-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
         {% else %}
-            Status: <span class="redis-active-status">{% if redis_status %}Active{% else %}Inactive{% endif %}</span> <span>&nbsp;&nbsp;&nbsp;</span>
+            <p></p>
+            <div>
+                Status: <span id="redis-active-status">{% if redis_active %}Active{% else %}Inactive{% endif %}</span>
+                <span>&nbsp;&nbsp;&nbsp;</span>
 
-            <input type="checkbox" id="toggle-redis" data-toggle="toggle" {% if redis_status %}checked="checked"{% endif %}/>
+                <input type="checkbox" id="toggle-redis" data-toggle="toggle"
+                       {% if redis_active %}checked="checked"{% endif %}/>
+            </div>
         {% endif %}
     </div>
 
@@ -66,6 +76,14 @@
             <a href="/nginx">
                 <button type="button" class="btn btn-primary">Configure</button>
             </a>
+
+            <p></p>
+            <div>
+                Status: <span id="nginx-active-status">{% if nginx_active %}Active{% else %}Inactive{% endif %}</span>
+                <span>&nbsp;&nbsp;&nbsp;</span>
+                <input type="checkbox" id="toggle-nginx" data-toggle="toggle"
+                       {% if nginx_active %}checked="checked"{% endif %}/>
+            </div>
         {% endif %}
     </div>
 
@@ -79,15 +97,12 @@
 
             <pre id="pm2-process"
                  style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-
         {% endif %}
     </div>
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="/javascripts/pace.min.js"></script>
     <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript" src="/javascripts/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/javascripts/main.js"></script>
 {% endblock %}

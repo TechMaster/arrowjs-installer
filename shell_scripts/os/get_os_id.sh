@@ -1,29 +1,27 @@
 #!/bin/bash
 if [ -f "/etc/os-release" ]; then
-    osname=`cat /etc/os-release | grep ID= | head -1 | sed 's/\"//g'`
-    osname=${osname:3}                                 
-    osversion=`cat /etc/os-release | grep VERSION_ID= | head -1 |  sed 's/\"//g'`
-    osversion=${osversion:11}
-    echo -n "${osname}-${osversion}"
+    # Ubuntu, Lubuntu, Debian, CentOS7
+    os_name=`cat /etc/os-release | sed -n 's/^ID=// p'`
+    os_version=`cat /etc/os-release | sed -n -r 's/^VERSION_ID="(.*)"$/\1/ p' | sed 's/\.//g'`
+
+    # Fedora
+    if [[ $os_name == "fedora" ]]; then
+        os_version=`rpm -q --qf "%{VERSION}" fedora-release`
+    fi
+
+    echo -n "${os_name}-${os_version}"
     exit
 fi
 
 if [ -f "/etc/system-release" ]; then
-    sysrelease=`cat /etc/system-release`
+    system_release=`cat /etc/system-release`
 
-    # Centos
-    if [[ $sysrelease == CentOS* ]]; then        
-        osversion=`rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release)`
-	    echo -n "${osname}-${osversion}"
+    # CentOS6
+    if [[ $system_release == CentOS* ]]; then
+        os_name="centos"
+        os_version=`rpm -q --qf "%{VERSION}" $(rpm -q --whatprovides redhat-release)`
+	    echo -n "${os_name}-${os_version}"
         exit
-    fi
-
-    ## Fedora
-    if [[ $sysrelease == Fedora* ]]; then
-    	osversion=`rpm -q --qf "%{VERSION}" fedora-release`
-    	osname="fedora"
-    	echo -n "fedora-${osversion}"
-	    exit
     fi
 else
     echo -n ""

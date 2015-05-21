@@ -3,42 +3,65 @@ var router = express.Router();
 
 var child_process = require('child_process');
 
-/* GET postgres install page. */
-router.get('/install', function (req, res) {
-    // Check postgres before install
-    child_process.exec('which psql', function (err, stdout, stderr) {
-        if (err) {
-            var result = '';
-            var install_process = child_process.spawn('./scripts/' + _osId + '/install_postgresql.sh', [_osArchitecture]);
-            install_process.stdout.on('data', function (data) {
-                console.log('stdout: ' + data);
-                result += data;
+function configPgHbaConf(data) {
+    return new Promise(function (fulfill, reject) {
+        if (data.address1) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh', function (err, stdout, stderr) {
+                if (err) {
+                    reject("ERROR: " + err);
+                } else {
+                    fulfill('success');
+                }
             });
-
-            install_process.stderr.on('data', function (data) {
-                //console.log('stderr: ' + data);
+        } else if (data.address2) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + data.address2, function (err, stdout, stderr) {
+                if (err) {
+                    reject("ERROR: " + err);
+                } else {
+                    fulfill('success');
+                }
             });
-
-            install_process.on('close', function (code) {
-                console.log('EXIT ' + code);
-                res.send(result);
-            });
-        }
-
-        if (stdout) {
-            res.redirect('/');
+        }else{
+            reject('Missing options');
         }
     });
-});
+}
+
+function configPostgresqlConf(data) {
+    return new Promise(function (fulfill, reject) {
+        if (data.listen_addresses) {
+            child_process.exec("./shell_scripts/postgres/config_postgresql.sh '" + data.listen_addresses + "'", function (err, stdout, stderr) {
+                if (err) {
+                    reject("ERROR: " + err);
+                } else {
+                    fulfill('success');
+                }
+            });
+        }else{
+            reject('Missing options');
+        }
+    });
+}
 
 /* GET postgres config page. */
-router.get('/config', function (req, res) {
+router.get('/', function (req, res) {
     res.render('postgres');
 });
 
 /* POST postgres config page. */
-router.post('/config', function (req, res) {
-    res.send(req.body);
+router.post('/', function (req, res) {
+    var data = req.body;
+
+    Promise.all([
+        configPgHbaConf(data),
+        configPostgresqlConf(data)
+    ]).then(function (results) {
+        res.locals.msg = '<div class="alert-success">Config saved successfully</div>';
+        res.render('postgres');
+    }).catch(function (err) {
+        res.locals.msg = '<div class="alert-warning">Missing options</div>';
+        res.render('postgres');
+    });
 });
 
 module.exports = router;

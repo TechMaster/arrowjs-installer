@@ -11,10 +11,10 @@ function getInfoUbuntu {
     case "$1" in
         12.04)
             getInfoUbuntu12
-        ;;
+            ;;
         *)
             getInfoUbuntu12
-        ;;
+            ;;
     esac
 }
 
@@ -45,13 +45,13 @@ function getInfoCenOS {
     case "$os_version" in
         6)
             getInfoCenOS6
-        ;;
+            ;;
         7)
             getInfoCenOS7
-        ;;
+            ;;
         *)
             getInfoCenOS7
-        ;;
+            ;;
     esac
 }
 
@@ -59,13 +59,13 @@ function getOsInfo {
     case "$os_id" in
         ubuntu)
             getInfoUbuntu
-        ;;
+            ;;
         centos)
             getInfoCenOS
-        ;;
+            ;;
         *)
             getInfoCenOS
-        ;;
+            ;;
     esac
 }
 
