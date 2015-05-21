@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start/Stop Nginx with parameter 1
+# Start/Stop Nginx with argument 1
 if [ "$1" == "start" ]; then
     systemctl start nginx
 else
