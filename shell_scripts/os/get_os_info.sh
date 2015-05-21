@@ -8,7 +8,7 @@ function getInfoUbuntu12 {
 }
 
 function getInfoUbuntu {
-    case "$1" in
+    case "$os_version" in
         12.04)
             getInfoUbuntu12
             ;;
@@ -50,7 +50,7 @@ function getInfoCenOS {
             getInfoCenOS7
             ;;
         *)
-            getInfoCenOS7
+            getInfoCenOS6
             ;;
     esac
 }

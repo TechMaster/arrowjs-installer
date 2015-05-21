@@ -37,7 +37,6 @@ fi
 # Make sure user runs this bash script as root
 if [ $(id -u) -ne 0 ]; then
     echo "You need to run as root user"
-    echo -e "\e[0;36m"'sudo ./iojs.sh'"\e[0;37m"
     exit
 fi
 
@@ -79,7 +78,7 @@ else
     # Use curl to check if remote file is downloadable
     file_exist=$(curl  -s -o /dev/null -IL -w %{http_code} $remote_file)
     if [ $file_exist -eq 200 ]; then
-        echo "start download: $remote_file"
+        echo "Start download: $remote_file"
         curl -O $remote_file #download and save file to current folder
     else
         echo -e  "\e[41m$remote_file does not exist\e[49m"
@@ -120,10 +119,17 @@ echo "node version: `node -v`"
 echo "iojs version: `iojs -v`"
 echo "npm version: `npm -v`"
 
-#source node_path.sh -a
+source shell_scripts/node_path.sh -a
 
 # Grant execution permission for shell_scripts directory
 chmod -R u+x shell_scripts
 
+# Open port for Web installer
+os=`./shell_scripts/os/get_os_id.sh`
+os_name=`echo $os | awk -F"-" {print $1}`
+os_version=`echo $os | awk -F"-" {print $1}`
+./shell_scripts/os/open_port.sh $os_name $os_version 3000
+
 # Run Web installer
+sudo npm install
 node bin/www
