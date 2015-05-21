@@ -1,7 +1,9 @@
 var express = require('express');
-var router = express.Router();
-
+var crypto = require('crypto');
 var child_process = require('child_process');
+var fs = require('fs');
+
+var router = express.Router();
 
 function getOsInfo() {
     return new Promise(function (fulfill, reject) {
@@ -46,13 +48,13 @@ function getPostgresInfo() {
 function checkPostgresActive() {
     return new Promise(function (fulfill, reject) {
         child_process.exec('./shell_scripts/postgres/check_active.sh', function (err, stdout, stderr) {
-            if(err){
+            if (err) {
                 reject(err);
             }
 
-            if(stdout){
+            if (stdout) {
                 fulfill(1);
-            }else{
+            } else {
                 fulfill(0);
             }
         });
@@ -130,13 +132,13 @@ function getNginxInfo() {
 function checkNginxActive() {
     return new Promise(function (fulfill, reject) {
         child_process.exec('./shell_scripts/nginx/check_active.sh', function (err, stdout, stderr) {
-            if(err){
+            if (err) {
                 reject(err);
             }
 
-            if(stdout){
+            if (stdout) {
                 fulfill(1);
-            }else{
+            } else {
                 fulfill(0);
             }
         });
@@ -171,7 +173,11 @@ function getPm2Info() {
 
 /* GET index page */
 router.get('/', function (req, res) {
-    // Async call use promise + child_process
+    // Check login
+    if (!req.session.auth) {
+        return res.redirect('/login');
+    }
+
     Promise.all([
         getOsInfo(),
         getPostgresInfo(),
@@ -182,7 +188,7 @@ router.get('/', function (req, res) {
         checkRedisActive(),
         checkNginxActive()
     ]).then(function (results) {
-        res.render('index', {
+        return res.render('index', {
             os_info: results[0],
             postgres: results[1],
             redis: results[2],
@@ -193,8 +199,34 @@ router.get('/', function (req, res) {
             nginx_active: results[7]
         })
     }).catch(function (err) {
-        res.send(err);
+        return res.send(err);
     });
+});
+
+/* GET login page */
+router.get('/login', function (req, res) {
+    res.render('login');
+});
+
+/* POST login page */
+router.post('/login', function (req, res) {
+    var hash_password = crypto.createHash('md5').update(req.body.password).digest('hex');
+    var init_password = "";
+
+    try {
+        init_password = fs.readFileSync('init_password').toString().trim();
+    } catch (e) {
+        res.locals.msg = '<div class="alert-warning">Cannot get Init password</div>';
+        return res.render('login');
+    }
+
+    if (hash_password && hash_password == init_password) {
+        req.session.auth = true;
+        return res.redirect('/');
+    } else {
+        res.locals.msg = '<div class="alert-warning">Wrong password</div>';
+        return res.render('login');
+    }
 });
 
 module.exports = router;

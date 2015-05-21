@@ -4,7 +4,7 @@ os_version=$2
 
 function getInfoUbuntu12 {
     IP=`ip addr| grep inet| head -3| tail -1| awk '{print $2}'| sed 's/...$//'`
-    echo "$IP"
+    echo "IP address: $IP"
 }
 
 function getInfoUbuntu {
@@ -20,13 +20,13 @@ function getInfoUbuntu {
 
 function getInfoCenOS6 {
     IP=`ifconfig | grep inet | awk '{ print $2; }' | awk -F":"  '{print $2}' | head -1`
-    echo "$IP"
+    echo "IP address: $IP"
 
     osname=`cat /etc/system-release`
-    echo "$osname"
+    echo "Operating system: $osname"
 
     osEdition=`uname -m | grep 64`
-    echo "$osEdition"
+    echo "Architecture: $osEdition"
 }
 
 function getInfoCenOS7 {

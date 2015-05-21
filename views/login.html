@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <p>&nbsp;</p>
+
+    <h1 class="text-center">
+        Welcome to ArrowJS Installer
+    </h1>
+
+    <p>&nbsp;</p>
+
+    <div class="text-center">
+        <p class="login-box-msg">Enter your init password to start your session</p>
+
+        {{ msg | safe }}
+
+        <form action="" method="post">
+            <div class="row">
+                <div class="col-xs-4 col-xs-push-4">
+                    <div class="form-group">
+                        <input type="password" class="form-control" placeholder="Password" name="password" required="required"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-4 col-xs-push-4">
+                    <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

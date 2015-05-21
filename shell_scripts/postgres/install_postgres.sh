@@ -156,6 +156,8 @@ function installPostgresDebian {
 }
 
 function installPostgres {
+    echo "Update new packages"
+
     # Install Postgres with specific OS
     case "$os_id" in
         ubuntu)

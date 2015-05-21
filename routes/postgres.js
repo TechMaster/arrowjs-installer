@@ -45,6 +45,11 @@ function configPostgresqlConf(data) {
 
 /* GET postgres config page. */
 router.get('/', function (req, res) {
+    // Check login
+    if (!req.session.auth) {
+        return res.redirect('/login');
+    }
+
     res.render('postgres');
 });
 

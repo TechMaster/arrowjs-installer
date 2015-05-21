@@ -1,4 +1,6 @@
 #!/bin/bash
+running_port=3000
+
 function checkIfCommandExist {
     # Return 0 if a command does not exist
     command -v $1 >/dev/null 2>&1 || {
@@ -79,7 +81,7 @@ else
     file_exist=$(curl  -s -o /dev/null -IL -w %{http_code} $remote_file)
     if [ $file_exist -eq 200 ]; then
         echo "Start download: $remote_file"
-        curl -O $remote_file #download and save file to current folder
+        curl -O $remote_file
     else
         echo -e  "\e[41m$remote_file does not exist\e[49m"
         exit
@@ -91,6 +93,9 @@ tar -xzf ${iojsfile}
 
 if [ -d "iojs-v${iojsversion}-linux-x64" ]; then
     echo "Extract to folder iojs-v${iojsversion}-linux-x64 successfully"
+
+    # Remove tar.gz file
+    rm -rf $iojsfile
 else
     echo "Extract failed"
     exit
@@ -124,12 +129,35 @@ source shell_scripts/node_path.sh -a
 # Grant execution permission for shell_scripts directory
 chmod -R u+x shell_scripts
 
-# Open port for Web installer
+# Open port for web installer
 os=`./shell_scripts/os/get_os_id.sh`
 os_name=`echo $os | awk -F"-" '{print $1}'`
 os_version=`echo $os | awk -F"-" '{print $2}'`
-./shell_scripts/os/open_port.sh $os_name $os_version 3000
+./shell_scripts/os/open_port.sh $os_name $os_version $running_port
 
-# Run Web installer
+# Install node modules
+echo "Install node modules to run Web installer"
 sudo npm install
+
+# Get init password for web installer
+function initPassword {
+    echo "Enter one password to init Web installer (this password is required to login Web installer): "
+    read -s password
+    echo "Confirm your password: "
+    read -s confirm_password
+}
+
+initPassword
+
+while [ "$password" != "$confirm_password" ]
+do
+    echo "Your password and confirm password does not match"
+	initPassword
+done
+
+# Hash password and store to file
+echo -n $password | md5sum | awk '{print $1}' > init_password
+echo "Init password was created successfully"
+
+# Run web installer
 node bin/www
