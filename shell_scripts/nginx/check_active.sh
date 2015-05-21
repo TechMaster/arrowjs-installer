@@ -28,34 +28,12 @@ function checkNginxActiveCenOS {
     esac
 }
 
-function checkNginxActiveFedora21 {
+function checkNginxActiveFedora {
     nginx_active=`service  --status-all | grep nginx | grep running`
 }
 
-function checkNginxActiveFedora {
-    case "$os_version" in
-        21)
-            checkNginxActiveFedora21
-            ;;
-        *)
-            checkNginxActiveFedora21
-            ;;
-    esac
-}
-
-function checkNginxActiveDebian8 {
-    checkNginxActiveCenOS6
-}
-
 function checkNginxActiveDebian {
-    case "$os_version" in
-        8)
-            checkNginxActiveDebian8
-            ;;
-        *)
-            checkNginxActiveDebian8
-            ;;
-    esac
+    nginx_active=`service  --status-all | grep nginx | grep running`
 }
 
 function checkNginxActive {
