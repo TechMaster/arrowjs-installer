@@ -6,7 +6,7 @@ root_path=$4
 upstream=$5
 
 if [ -f "/etc/nginx/conf.d/${file_name}" ]; then
-    echo "exists"
+    echo -n "exists"
     return
 fi
 

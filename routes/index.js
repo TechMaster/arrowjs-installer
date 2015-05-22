@@ -28,7 +28,7 @@ function getPostgresInfo() {
                 reject(err);
             }
 
-            if (stdout) {
+            if (stdout.trim()) {
                 results = {
                     'info': 'Postgres has been installed \nVersion:' + stdout,
                     'need_install': 0
@@ -47,12 +47,12 @@ function getPostgresInfo() {
 
 function checkPostgresActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/postgres/check_active.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/postgres/check_active.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
 
-            if (stdout) {
+            if (stdout.trim()) {
                 fulfill(1);
             } else {
                 fulfill(0);
@@ -112,9 +112,11 @@ function getNginxInfo() {
                 reject(err);
             }
 
-            if (stdout) {
+            if (stdout.trim()) {
+                var version = stderr.trim().split('/');
+
                 results = {
-                    'info': 'Nginx has been installed \nVersion:' + stdout,
+                    'info': 'Nginx has been installed \nVersion: ' + version[1],
                     'need_install': 0
                 };
                 fulfill(results);
@@ -131,12 +133,13 @@ function getNginxInfo() {
 
 function checkNginxActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/nginx/check_active.sh', function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/nginx/check_active.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
+            console.log('-------------', 'ERR: ' + err, 'STDOUT: ' + stdout, 'STDERR: ' + stderr);
             if (err) {
                 reject(err);
             }
 
-            if (stdout) {
+            if (stdout.trim()) {
                 fulfill(1);
             } else {
                 fulfill(0);
@@ -154,7 +157,7 @@ function getPm2Info() {
                 reject(err);
             }
 
-            if (stdout) {
+            if (stdout.trim()) {
                 results = {
                     'info': 'PM2 has been installed \nVersion:' + stdout,
                     'need_install': 0

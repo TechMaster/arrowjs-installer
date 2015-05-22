@@ -53,8 +53,10 @@ function checkNginxActive {
     esac
 
     if [ -z "$nginx_active" ]; then
-        echo ""
+        echo -n ""
     else
-        echo "active"
+        echo -n "active"
     fi
 }
+
+checkNginxActive

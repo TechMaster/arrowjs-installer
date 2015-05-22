@@ -75,9 +75,9 @@ function checkPGActive {
     esac
 
     if [ -z "$pg_active" ]; then
-        echo ""
+        echo -n ""
     else
-        echo "active"
+        echo -n "active"
     fi
 }
 

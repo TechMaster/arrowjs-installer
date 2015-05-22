@@ -1,9 +1,9 @@
 #!/bin/bash
 # Check file config exists
 if [ -f "/etc/nginx/conf.d/${1}.conf" ]; then
-    echo "exists"
+    echo -n "exists"
 else
-    echo ""
+    echo -n ""
 fi
 
 

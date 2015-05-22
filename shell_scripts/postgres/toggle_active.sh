@@ -4,7 +4,7 @@ os_version=$2
 toggle=$3
 
 function activePostgresCenOS6 {
-    pgservice=`service  --status-all| grep postgres`
+    pgservice=`service  --status-all | grep postgres`
     spaceIndex=`expr index "$pgservice" " "`
     pgservice=${pgservice:0:spaceIndex}
     service $pgservice $toggle
