@@ -1,4 +1,15 @@
 #!/bin/bash
-# Check Redis active
-path="$1/src/"
-$path/redis-cli ping
+url="https://github.com/quanghuy90hn/arrowjs-blog.git"
+directory="arrowjs-blog"
+
+git clone $url
+cd $directory
+npm install
+
+# Rename project
+
+# Backup database
+
+# Open port
+
+# Run website

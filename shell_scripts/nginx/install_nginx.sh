@@ -3,8 +3,8 @@ os_id=$1
 os_version=$2
 
 function installNginxUbuntu {
-    apt-get update
-    sudo apt-get install nginx
+    apt-get -y update
+    apt-get -y install nginx
 }
 
 function installNginxCentOS {
@@ -23,8 +23,8 @@ function installNginxFedora {
 }
 
 function installNginxDebian {
-    apt-get update
-    apt-get install nginx
+    apt-get -y update
+    apt-get -y install nginx
 }
 
 function installNginx {

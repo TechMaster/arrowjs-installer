@@ -3,13 +3,13 @@ os_id=$1
 os_version=$2
 
 function installPostgresUbuntu1204 {
-    sudo apt-get -y update
-    sudo apt-get -y install postgresql
+    apt-get -y update
+    apt-get -y install postgresql
 }
 
 function installPostgresUbuntu1504 {
-    sudo apt-get -y update
-    sudo apt-get -y install postgresql postgresql-contrib
+    apt-get -y update
+    apt-get -y install postgresql postgresql-contrib
 }
 
 function installPostgresUbuntu {
