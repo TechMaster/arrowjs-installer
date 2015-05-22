@@ -28,7 +28,7 @@ function installNginxDebian {
 }
 
 function installNginx {
-    case "$osname" in
+    case "$os_id" in
         ubuntu)
             installNginxUbuntu
             ;;
@@ -50,5 +50,5 @@ installNginx
 
 # Open port 80 for Nginx
 echo "Open port 80"
-../os/open_port.sh 80
+./shell_script/os/open_port.sh 80
 

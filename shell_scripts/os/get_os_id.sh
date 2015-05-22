@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ -f "/etc/os-release" ]; then
     # Ubuntu, Lubuntu, Debian, CentOS7
-    os_name=`cat /etc/os-release | sed -n 's/^ID=// p'`
+    os_name=`cat /etc/os-release | sed -n 's/^ID=// p' | sed 's/\"//g'`
     os_version=`cat /etc/os-release | sed -n -r 's/^VERSION_ID="(.*)"$/\1/ p' | sed 's/\.//g'`
 
     # Fedora

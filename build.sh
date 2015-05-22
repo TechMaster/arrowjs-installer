@@ -49,6 +49,8 @@ echo 'Get iojs version from https://iojs.org'
 iojsversion=`curl -sL https://iojs.org/en/index.html | sed -nre 's/.*\/v([0-9]*\.[0-9]*\.[0-9]*)\/.*/\1/p' | head -1`
 
 # Check if nodejs installed
+install="1"
+
 if [ $(checkIfCommandExist node) -eq 1 ]; then
     nodeversion=$(node -v)
 
@@ -58,62 +60,67 @@ if [ $(checkIfCommandExist node) -eq 1 ]; then
 
     if [ $nodeversionnumber -lt $iojsversionnumber ]; then
         echo "Installed node version is older. Upgrade now"
-
-        iojsfile="iojs-v${iojsversion}-linux-x64.tar.gz"
-
-        # Check if iojs-vx.y.z-linux-x64.tar.gz exists in current path
-        if [ -f "$iojsfile" ]; then
-            echo "$iojsfile found."
-        else
-            echo "$iojsfile not found."
-            remote_file=https://iojs.org/dist/v${iojsversion}/${iojsfile}
-
-            # Use curl to check if remote file is downloadable
-            file_exist=$(curl  -s -o /dev/null -IL -w %{http_code} $remote_file)
-            if [ $file_exist -eq 200 ]; then
-                echo "Start download: $remote_file"
-                curl -O $remote_file
-            else
-                echo -e  "\e[41m$remote_file does not exist\e[49m"
-                exit
-            fi
-        fi
-
-        echo "Extract ${iojsfile}"
-        tar -xzf ${iojsfile}
-
-        if [ -d "iojs-v${iojsversion}-linux-x64" ]; then
-            echo "Extract to folder iojs-v${iojsversion}-linux-x64 successfully"
-
-            # Remove tar.gz file
-            rm -rf $iojsfile
-        else
-            echo "Extract failed"
-            exit
-        fi
-
-        echo "Move iojs-v${iojsversion} to /opt folder"
-
-        # If in /opt folder there is already iojs folder, then remove it
-        if [ -d "/opt/iojs-v${iojsversion}" ]; then
-            rm -rf /opt/iojs-v${iojsversion}
-        fi
-
-        mv iojs-v${iojsversion}-linux-x64 /opt/iojs-v${iojsversion}
-
-        echo "Create symbolic links to iojs, node, npm"
-        rm -f /usr/bin/iojs
-        rm -f /usr/bin/node
-        rm -f /usr/bin/npm
-
-        ln -s /opt/iojs-v${iojsversion}/bin/iojs /usr/bin/iojs
-        ln -s /opt/iojs-v${iojsversion}/bin/node /usr/bin/node
-        ln -s /opt/iojs-v${iojsversion}/bin/npm /usr/bin/npm
-
-        source shell_scripts/node_path.sh -a
     else
         echo "Installed node version: $nodeversion is up to date"
+        install="0"
     fi
+fi
+
+if [ "$install" == "1" ]; then
+    echo "Installed node version is older. Upgrade now"
+
+    iojsfile="iojs-v${iojsversion}-linux-x64.tar.gz"
+
+    # Check if iojs-vx.y.z-linux-x64.tar.gz exists in current path
+    if [ -f "$iojsfile" ]; then
+        echo "$iojsfile found."
+    else
+        echo "$iojsfile not found."
+        remote_file=https://iojs.org/dist/v${iojsversion}/${iojsfile}
+
+        # Use curl to check if remote file is downloadable
+        file_exist=$(curl  -s -o /dev/null -IL -w %{http_code} $remote_file)
+        if [ $file_exist -eq 200 ]; then
+            echo "Start download: $remote_file"
+            curl -O $remote_file
+        else
+            echo -e  "\e[41m$remote_file does not exist\e[49m"
+            exit
+        fi
+    fi
+
+    echo "Extract ${iojsfile}"
+    tar -xzf ${iojsfile}
+
+    if [ -d "iojs-v${iojsversion}-linux-x64" ]; then
+        echo "Extract to folder iojs-v${iojsversion}-linux-x64 successfully"
+
+        # Remove tar.gz file
+        rm -rf $iojsfile
+    else
+        echo "Extract failed"
+        exit
+    fi
+
+    echo "Move iojs-v${iojsversion} to /opt folder"
+
+    # If in /opt folder there is already iojs folder, then remove it
+    if [ -d "/opt/iojs-v${iojsversion}" ]; then
+        rm -rf /opt/iojs-v${iojsversion}
+    fi
+
+    mv iojs-v${iojsversion}-linux-x64 /opt/iojs-v${iojsversion}
+
+    echo "Create symbolic links to iojs, node, npm"
+    rm -f /usr/bin/iojs
+    rm -f /usr/bin/node
+    rm -f /usr/bin/npm
+
+    ln -s /opt/iojs-v${iojsversion}/bin/iojs /usr/bin/iojs
+    ln -s /opt/iojs-v${iojsversion}/bin/node /usr/bin/node
+    ln -s /opt/iojs-v${iojsversion}/bin/npm /usr/bin/npm
+
+    source shell_scripts/node_path.sh -a
 fi
 
 # Grant execution permission for shell_scripts directory
@@ -131,9 +138,10 @@ sudo npm install
 
 # Get init password for web installer
 function initPassword {
-    echo "Enter one password to init Web installer (this password is required to login Web installer): "
+    echo -n "Enter master password (this password is required to login Web installer): "
     read -s password
-    echo "Confirm your password: "
+    echo ""
+    echo -n "Confirm your password: "
     read -s confirm_password
 }
 

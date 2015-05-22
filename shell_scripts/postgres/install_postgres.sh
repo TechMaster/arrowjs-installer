@@ -156,7 +156,7 @@ function installPostgresDebian {
 }
 
 function installPostgres {
-    echo "Update new packages"
+    echo "Update yum packages"
 
     # Install Postgres with specific OS
     case "$os_id" in

@@ -63,8 +63,11 @@ function getOsInfo {
         centos)
             getInfoCenOS
             ;;
-        *)
-            getInfoCenOS
+        fedora)
+            getInfoCenOS7
+            ;;
+        debian)
+            getInfoCenOS7
             ;;
     esac
 }

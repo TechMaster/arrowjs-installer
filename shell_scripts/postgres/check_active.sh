@@ -80,3 +80,5 @@ function checkPGActive {
         echo 1
     fi
 }
+
+checkPGActive
