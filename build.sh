@@ -138,7 +138,7 @@ npm install
 
 # Get init password for web installer
 function initPassword {
-    echo -n "Enter master password (this password is required to login Web installer): "
+    echo -n "Enter master password (this one is required to login Web installer): "
     read -s password
     echo ""
     echo -n "Confirm your password: "

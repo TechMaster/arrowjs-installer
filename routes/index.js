@@ -29,6 +29,8 @@ function getPostgresInfo() {
             }
 
             if (stdout.trim()) {
+                _installedPostgres = true;
+
                 results = {
                     'info': 'Postgres has been installed \nVersion:' + stdout,
                     'need_install': 0
@@ -40,22 +42,6 @@ function getPostgresInfo() {
                     'need_install': 1
                 };
                 fulfill(results);
-            }
-        });
-    });
-}
-
-function checkPostgresActive() {
-    return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/postgres/check_active.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
-            if (err) {
-                reject(err);
-            }
-
-            if (stdout.trim()) {
-                fulfill(1);
-            } else {
-                fulfill(0);
             }
         });
     });
@@ -80,24 +66,13 @@ function getRedisInfo() {
                 fulfill(results);
             } else {
                 _redisPath = stdout;
+                _installedRedis = true;
 
                 results = {
                     'info': 'Redis has been installed \nVersion: ' + stdout.split('-')[1],
                     'need_install': 0
                 };
                 fulfill(results);
-            }
-        });
-    });
-}
-
-function checkRedisActive() {
-    return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/redis/check_active.sh ' + _redisPath, function (err, stdout, stderr) {
-            if (stdout.trim() == "PONG") {
-                fulfill(1)
-            } else {
-                fulfill(0)
             }
         });
     });
@@ -113,6 +88,8 @@ function getNginxInfo() {
             }
 
             if (stdout.trim()) {
+                _installedNginx = true;
+
                 var version = stderr.trim().split('/');
 
                 results = {
@@ -131,22 +108,6 @@ function getNginxInfo() {
     });
 }
 
-function checkNginxActive() {
-    return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/nginx/check_active.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
-            if (err) {
-                reject(err);
-            }
-
-            if (stdout.trim()) {
-                fulfill(1);
-            } else {
-                fulfill(0);
-            }
-        });
-    });
-}
-
 function getPm2Info() {
     return new Promise(function (fulfill, reject) {
         var results = {};
@@ -157,6 +118,8 @@ function getPm2Info() {
             }
 
             if (stdout.trim()) {
+                _installedPm2 = true;
+
                 results = {
                     'info': 'PM2 has been installed \nVersion:' + stdout,
                     'need_install': 0
@@ -185,20 +148,14 @@ router.get('/', function (req, res) {
         getPostgresInfo(),
         getRedisInfo(),
         getNginxInfo(),
-        getPm2Info(),
-        checkPostgresActive(),
-        checkRedisActive(),
-        checkNginxActive()
+        getPm2Info()
     ]).then(function (results) {
         return res.render('index', {
             os_info: results[0],
             postgres: results[1],
             redis: results[2],
             nginx: results[3],
-            pm2: results[4],
-            postgres_active: results[5],
-            redis_active: results[6],
-            nginx_active: results[7]
+            pm2: results[4]
         })
     }).catch(function (err) {
         return res.send(err);

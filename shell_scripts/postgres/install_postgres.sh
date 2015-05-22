@@ -3,13 +3,13 @@ os_id=$1
 os_version=$2
 
 function installPostgresUbuntu1204 {
-    sudo apt-get update
-    sudo apt-get install postgresql
+    sudo apt-get -y update
+    sudo apt-get -y install postgresql
 }
 
 function installPostgresUbuntu1504 {
-    sudo apt-get update
-    sudo apt-get install postgresql postgresql-contrib
+    sudo apt-get -y update
+    sudo apt-get -y install postgresql postgresql-contrib
 }
 
 function installPostgresUbuntu {
@@ -47,6 +47,7 @@ function installPostgresCentOS6 {
     yum -y update
     yum -y install postgresql94-server postgresql94-contrib
 
+    echo "Initialize database for first time use"
     service postgresql-9.4 initdb
 
     chkconfig postgresql-9.4 on
@@ -116,43 +117,27 @@ function checkFedoraBaseRepo {
     sed -i '/\[updates\]/a exclude=postgresql\*' /etc/yum.repos.d/fedora-updates.repo
 }
 
-function installPostgresFedora21 {
+function installPostgresFedora {
     checkFedoraBaseRepo
 
     rpm -Uvh http://yum.postgresql.org/9.4/fedora/fedora-21-x86_64/pgdg-fedora94-9.4-2.noarch.rpm
     yum -y update
     yum -y install postgresql94-server postgresql94-contrib
+
+    echo "Initialize database for first time use"
+    /usr/pgsql-9.4/bin/postgresql94-setup initdb
 }
 
-function installPostgresFedora {
-    case "$os_version" in
-        21)
-            installPostgresFedora21
-            ;;
-        *)
-            installPostgresFedora21
-            ;;
-    esac
-}
-
-function installPostgresDebian8 {
+function installPostgresDebian {
     printf "deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 
     wget https://www.postgresql.org/media/keys/ACCC4CF8.asc
     apt-key add ACCC4CF8.asc
-    apt-get update
-    apt-get install postgresql
-}
+    apt-get -y update
+    apt-get -y install postgresql
 
-function installPostgresDebian {
-    case "$os_version" in
-        8)
-            installPostgresDebian8
-            ;;
-        *)
-            installPostgresDebian8
-            ;;
-    esac
+    echo "Initialize database for first time use"
+    /usr/pgsql-9.4/bin/postgresql94-setup initdb
 }
 
 function installPostgres {

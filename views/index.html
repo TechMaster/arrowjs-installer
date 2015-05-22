@@ -2,107 +2,233 @@
 
 {% block style %}
     <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: white;
+            border: none;
+        }
+
+        .btn-success {
+            min-width: 100px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <div>
-        <h3>Server information</h3>
-        <pre>{{ os_info }}</pre>
+    <h3>Server information</h3>
+    <pre>{{ os_info }}</pre>
+
+    <hr/>
+
+    <h3>PostgreSQL</h3>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ postgres.info }}</pre>
+        </div>
+
+        <div class="col-sm-6">
+            {% if postgres.need_install %}
+                <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
+                    Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if postgres.need_install %}
+                <div id="postgres-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+
+                <pre id="postgres-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>PostgreSQL</h3>
-        <pre>{{ postgres.info }}</pre>
+    <hr/>
 
-        {% if postgres.need_install %}
-            <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
-                Install
-            </button>
+    <h3>Redis</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ redis.info }}</pre>
+        </div>
 
-            <div id="postgres-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+        <div class="col-sm-6">
+            {% if redis.need_install %}
+                <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install
+                </button>
+            {% endif %}
+        </div>
 
-            <pre id="postgres-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <a href="/postgres">
-                <button type="button" class="btn btn-primary">Configure</button>
-            </a>
+        <div class="col-sm-12">
+            {% if redis.need_install %}
+                <div id="redis-status" style="margin-bottom: 15px; font-size: 24px;"></div>
 
-            <p></p>
-            <div>
-                Status: <span id="postgres-active-status">{% if postgres_active %}Active{% else %}Inactive{% endif %}</span>
-                <span>&nbsp;&nbsp;&nbsp;</span>
-                <input type="checkbox" id="toggle-postgres" data-toggle="toggle"
-                       {% if postgres_active %}checked="checked"{% endif %}/>
-            </div>
-        {% endif %}
+                <pre id="redis-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>Redis</h3>
-        <pre>{{ redis.info }}</pre>
+    <hr/>
 
-        {% if redis.need_install %}
-            <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install
-            </button>
-            <div id="redis-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+    <h3>Nginx</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ nginx.info }}</pre>
+        </div>
 
-            <pre id="redis-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <p></p>
-            <div>
-                Status: <span id="redis-active-status">{% if redis_active %}Active{% else %}Inactive{% endif %}</span>
-                <span>&nbsp;&nbsp;&nbsp;</span>
+        <div class="col-sm-6">
+            {% if nginx.need_install %}
+                <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install
+                </button>
+            {% endif %}
+        </div>
 
-                <input type="checkbox" id="toggle-redis" data-toggle="toggle"
-                       {% if redis_active %}checked="checked"{% endif %}/>
-            </div>
-        {% endif %}
+        <div class="col-sm-12">
+            {% if nginx.need_install %}
+                <div id="nginx-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+                <pre id="nginx-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>Nginx</h3>
-        <pre>{{ nginx.info }}</pre>
+    <hr/>
 
-        {% if nginx.need_install %}
-            <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install
-            </button>
-            <div id="nginx-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+    <h3>PM2</h3>
 
-            <pre id="nginx-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <a href="/nginx">
-                <button type="button" class="btn btn-primary">Configure</button>
-            </a>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ pm2.info }}</pre>
+        </div>
 
-            <p></p>
-            <div>
-                Status: <span id="nginx-active-status">{% if nginx_active %}Active{% else %}Inactive{% endif %}</span>
-                <span>&nbsp;&nbsp;&nbsp;</span>
-                <input type="checkbox" id="toggle-nginx" data-toggle="toggle"
-                       {% if nginx_active %}checked="checked"{% endif %}/>
-            </div>
-        {% endif %}
+        <div class="col-sm-6">
+            {% if pm2.need_install %}
+                <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if pm2.need_install %}
+                <div id="pm2-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+
+                <pre id="pm2-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>PM2</h3>
-        <pre>{{ pm2.info }}</pre>
-
-        {% if pm2.need_install %}
-            <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install</button>
-            <div id="pm2-status" style="margin-bottom: 15px; font-size: 24px;"></div>
-
-            <pre id="pm2-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% endif %}
-    </div>
+    <p>&nbsp;</p>
 {% endblock %}
 
 {% block scripts %}
     <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
     <script type="text/javascript" src="/javascripts/bootstrap-toggle.min.js"></script>
-    <script type="text/javascript" src="/javascripts/main.js"></script>
+    <script>
+        var postgres_process = $('#postgres-process');
+        var postgres_status = $('#postgres-status');
+
+        var redis_process = $('#redis-process');
+        var redis_status = $('#redis-status');
+
+        var nginx_process = $('#nginx-process');
+        var nginx_status = $('#nginx-status');
+
+        var pm2_process = $('#pm2-process');
+        var pm2_status = $('#pm2-status');
+
+        var socket = io();
+
+        socket.on('checking', function (data) {
+            if (data.postgres) {
+                $('.btn-install-postgres').remove();
+                postgres_status.text("Postgres are installing ...").css('color', 'blue');
+            }
+
+            if (data.redis) {
+                $('.btn-install-redis').remove();
+                redis_status.text("Redis are installing ...").css('color', 'blue');
+            }
+
+            if (data.nginx) {
+                $('.btn-install-nginx').remove();
+                nginx_status.text("Nginx are installing ...").css('color', 'blue');
+            }
+
+            if (data.pm2) {
+                $('.btn-install-pm2').remove();
+                pm2_status.text("PM2 are installing ...").css('color', 'blue');
+            }
+        });
+
+        socket.on('install_postgres_process', function (data) {
+            postgres_process.append(data);
+            postgres_process.scrollTop(999999);
+        });
+
+        socket.on('install_postgres_completed', function (data) {
+            postgres_status.text('Postgres installation has completed').css('color', 'green');
+        });
+
+        socket.on('install_redis_process', function (data) {
+            redis_process.append(data);
+            redis_process.scrollTop(999999);
+        });
+
+        socket.on('install_redis_completed', function (data) {
+            redis_status.text('Redis installation has completed').css('color', 'green');
+        });
+
+        socket.on('install_nginx_process', function (data) {
+            nginx_process.append(data);
+            nginx_process.scrollTop(999999);
+        });
+
+        socket.on('install_nginx_completed', function (data) {
+            nginx_status.text('Nginx installation has completed').css('color', 'green');
+        });
+
+        socket.on('install_pm2_process', function (data) {
+            pm2_process.append(data);
+            pm2_process.scrollTop(999999);
+        });
+
+        socket.on('install_pm2_completed', function (data) {
+            pm2_status.text('PM2 installation has completed').css('color', 'green');
+        });
+
+        function installPostgres(button) {
+            $(button).remove();
+            postgres_status.text("Installing Postgres ...").css('color', 'blue');
+            postgres_process.css('display', 'block');
+
+            socket.emit('install_postgres', '');
+        }
+
+        function installRedis(button) {
+            $(button).remove();
+            redis_status.text("Installing Redis ...").css('color', 'blue');
+            redis_process.css('display', 'block');
+
+            socket.emit('install_redis', '');
+        }
+
+        function installNginx(button) {
+            $(button).remove();
+            nginx_status.text("Installing Nginx ...").css('color', 'blue');
+            nginx_process.css('display', 'block');
+
+            socket.emit('install_nginx', '');
+        }
+
+        function installPm2(button) {
+            $(button).remove();
+            pm2_status.text("Installing PM2 ...").css('color', 'blue');
+            pm2_process.css('display', 'block');
+
+            socket.emit('install_pm2', '');
+        }
+    </script>
 {% endblock %}

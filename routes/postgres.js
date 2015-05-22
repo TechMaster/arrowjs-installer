@@ -6,7 +6,7 @@ var child_process = require('child_process');
 function configPgHbaConf(data) {
     return new Promise(function (fulfill, reject) {
         if (data.address1) {
-            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh', function (err, stdout, stderr) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
                 if (err) {
                     reject("ERROR: " + err);
                 } else {
@@ -14,14 +14,14 @@ function configPgHbaConf(data) {
                 }
             });
         } else if (data.address2) {
-            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + data.address2, function (err, stdout, stderr) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion + ' ' + data.address2, function (err, stdout, stderr) {
                 if (err) {
                     reject("ERROR: " + err);
                 } else {
                     fulfill('success');
                 }
             });
-        }else{
+        } else {
             reject('Missing options');
         }
     });
@@ -30,14 +30,14 @@ function configPgHbaConf(data) {
 function configPostgresqlConf(data) {
     return new Promise(function (fulfill, reject) {
         if (data.listen_addresses) {
-            child_process.exec("./shell_scripts/postgres/config_postgresql.sh '" + data.listen_addresses + "'", function (err, stdout, stderr) {
+            child_process.exec("./shell_scripts/postgres/config_postgresql.sh " + _osId + " " + _osVersion + " '" + data.listen_addresses + "'", function (err, stdout, stderr) {
                 if (err) {
                     reject("ERROR: " + err);
                 } else {
                     fulfill('success');
                 }
             });
-        }else{
+        } else {
             reject('Missing options');
         }
     });

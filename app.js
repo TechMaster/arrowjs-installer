@@ -10,6 +10,7 @@ var child_process = require('child_process');
 
 var index = require('./routes/index');
 var websites = require('./routes/websites');
+var services = require('./routes/services');
 var postgres = require('./routes/postgres');
 var nginx = require('./routes/nginx');
 
@@ -23,6 +24,10 @@ global._installingPostgres = false;
 global._installingRedis = false;
 global._installingNginx = false;
 global._installingPm2 = false;
+global._installedPostgres = false;
+global._installedRedis = false;
+global._installedNginx = false;
+global._installedPm2 = false;
 global._redisPath = '~/redis-3.0.1';    // Reference to install_redis.sh
 
 // View engine setup
@@ -47,6 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/websites', websites);
+app.use('/services', services);
 app.use('/postgres', postgres);
 app.use('/nginx', nginx);
 
