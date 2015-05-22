@@ -2,20 +2,9 @@
 os_id=$1
 os_version=$2
 
-function getInfoUbuntu12 {
+function getInfoUbuntu {
     IP=`ip addr| grep inet| head -3| tail -1| awk '{print $2}'| sed 's/...$//'`
     echo "IP address: $IP"
-}
-
-function getInfoUbuntu {
-    case "$os_version" in
-        12.04)
-            getInfoUbuntu12
-            ;;
-        *)
-            getInfoUbuntu12
-            ;;
-    esac
 }
 
 function getInfoCenOS6 {

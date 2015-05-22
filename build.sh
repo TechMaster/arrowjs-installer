@@ -59,9 +59,9 @@ if [ $(checkIfCommandExist node) -eq 1 ]; then
     iojsversionnumber=${iojsversion//./}
 
     if [ $nodeversionnumber -lt $iojsversionnumber ]; then
-        echo "Installed node version is older. Upgrade now"
+        echo "Installed iojs version is older. Upgrade now"
     else
-        echo "Installed node version: $nodeversion is up to date"
+        echo "Installed iojs version: $nodeversion is up to date"
         install="0"
     fi
 fi
@@ -155,6 +155,7 @@ done
 
 # Hash password and store to file
 echo -n $password | md5sum | awk '{print $1}' > init_password
+echo ""
 echo "Init password was created successfully"
 
 # Run web installer

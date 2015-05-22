@@ -3,20 +3,9 @@ os_id=$1
 os_version=$2
 port=$3
 
-function openPortUbuntu12 {
+function openPortUbuntu {
     iptables -I INPUT -p tcp -m tcp --dport ${port} -j ACCEPT
     service iptables save
-}
-
-function openPortUbuntu {
-    case "$os_version" in
-        12.04)
-            openPortUbuntu12
-            ;;
-        *)
-            openPortUbuntu12
-            ;;
-    esac
 }
 
 function openPortCenOS6 {
@@ -52,7 +41,7 @@ function openPort {
             openPortCenOS
             ;;
         *)
-            openPortCenOS
+            openPortUbuntu
             ;;
     esac
 }

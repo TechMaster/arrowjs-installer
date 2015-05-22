@@ -10,9 +10,9 @@ function installNginxUbuntu {
 function installNginxCentOS {
     # Add nginx repo
     printf '[nginx]
-    name=nginx repo
-    baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
-    gpgcheck=0\nenabled=1' > /etc/yum.repos.d/nginx.repo
+name=nginx repo
+baseurl=http://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=0\nenabled=1' > /etc/yum.repos.d/nginx.repo
 
     # Install nginx with yum
     yum -y install nginx
@@ -50,5 +50,5 @@ installNginx
 
 # Open port 80 for Nginx
 echo "Open port 80"
-./shell_script/os/open_port.sh 80
+./shell_scripts/os/open_port.sh $os_id $os_version 80
 
