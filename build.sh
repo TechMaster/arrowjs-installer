@@ -33,7 +33,7 @@ function installPackage {
 
 # install curl if it does not exist
 if [ $(checkIfCommandExist curl) -eq 0 ]; then
-   install curl
+   installPackage curl
 fi
 
 # Make sure user runs this bash script as root
@@ -134,7 +134,7 @@ os_version=`echo $os | awk -F"-" '{print $2}'`
 
 # Install node modules
 echo "Install node modules to run Web installer"
-sudo npm install
+npm install
 
 # Get init password for web installer
 function initPassword {

@@ -6,6 +6,7 @@
 var app = require('../app');
 var debug = require('debug')('arrowjs-installer:server');
 var http = require('http');
+var child_process = require('child_process');
 var io = require('socket.io')();
 var socket_install = require('../lib/socket_install.js');
 var socket_active = require('../lib/socket_active.js');
@@ -138,5 +139,8 @@ function onListening() {
         ? 'pipe ' + addr
         : 'port ' + addr.port;
     //debug('Listening on ' + bind);
+
     console.log('Application started on port ' + addr.port);
+
+    console.log('Open your web browser and login this page with your master password: ' + _ipAddress + ':' + addr.port);
 }

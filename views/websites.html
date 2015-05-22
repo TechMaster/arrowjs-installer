@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+    <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <p>&nbsp;</p>
+    <pre>Website 1</pre>
+    <pre>Website 2</pre>
+    <pre>Website 3</pre>
+
+    <button class="btn btn-primary" onclick="createWebsite()">Create New Website</button>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
+    <script type="text/javascript" src="/javascripts/bootstrap-toggle.min.js"></script>
+    <script>
+        function createWebsite(){
+
+        }
+    </script>
+{% endblock %}

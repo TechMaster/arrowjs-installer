@@ -19,7 +19,7 @@ gpgcheck=0\nenabled=1' > /etc/yum.repos.d/nginx.repo
 }
 
 function installNginxFedora {
-    yum install nginx git
+    yum -y install nginx git
 }
 
 function installNginxDebian {

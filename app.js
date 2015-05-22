@@ -9,23 +9,16 @@ var nunjucks = require('nunjucks');
 var child_process = require('child_process');
 
 var index = require('./routes/index');
+var websites = require('./routes/websites');
 var postgres = require('./routes/postgres');
 var nginx = require('./routes/nginx');
 
 var app = express();
 
-// Get OS ID
-global._osname = null;
-global._osversion = null;
-child_process.exec('./shell_scripts/os/get_os_id.sh', function (err, stdout, stderr) {
-    if (stdout) {
-        var os_id = stdout.split('-');
-        global._osname = os_id[0];
-        global._osversion = os_id[1];
-    }
-});
-
 // Global variables
+global._osId = child_process.execSync('./shell_scripts/os/get_os_id.sh').toString().split('-')[0];
+global._osVersion = child_process.execSync('./shell_scripts/os/get_os_id.sh').toString().split('-')[1];
+global._ipAddress = child_process.execSync('./shell_scripts/os/get_ip_address.sh ' + _osId + ' ' + _osVersion).toString();
 global._installingPostgres = false;
 global._installingRedis = false;
 global._installingNginx = false;
@@ -53,6 +46,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/websites', websites);
 app.use('/postgres', postgres);
 app.use('/nginx', nginx);
 

@@ -7,7 +7,7 @@ var router = express.Router();
 
 function getOsInfo() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/os/get_os_info.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/os/get_os_info.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
@@ -47,7 +47,7 @@ function getPostgresInfo() {
 
 function checkPostgresActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/postgres/check_active.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/postgres/check_active.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
@@ -133,8 +133,7 @@ function getNginxInfo() {
 
 function checkNginxActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/nginx/check_active.sh ' + _osname + ' ' + _osversion, function (err, stdout, stderr) {
-            console.log('-------------', 'ERR: ' + err, 'STDOUT: ' + stdout, 'STDERR: ' + stderr);
+        child_process.exec('./shell_scripts/nginx/check_active.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
             if (err) {
                 reject(err);
             }
