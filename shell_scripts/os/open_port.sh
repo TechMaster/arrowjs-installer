@@ -4,8 +4,8 @@ os_version=$2
 port=$3
 
 function openPortUbuntu {
-    iptables -I INPUT -p tcp -m tcp --dport ${port} -j ACCEPT
-    service iptables save
+    iptables -A INPUT -p tcp --dport ${port} -j ACCEPT
+    iptables-save
 }
 
 function openPortCenOS6 {
@@ -32,6 +32,16 @@ function openPortCenOS {
     esac
 }
 
+function openPortFedora {
+    iptables -I INPUT -p tcp -m tcp --dport ${port} -j ACCEPT
+    service iptables save
+}
+
+function openPortDebian {
+    iptables -A INPUT -p tcp --dport ${port} -j ACCEPT
+    iptables-save
+}
+
 function openPort {
     case "$os_id" in
         ubuntu)
@@ -40,8 +50,11 @@ function openPort {
         centos)
             openPortCenOS
             ;;
-        *)
-            openPortUbuntu
+        fedora)
+            openPortFedora
+            ;;
+        debian)
+            openPortDebian
             ;;
     esac
 }

@@ -16,7 +16,6 @@ Install app
 
 ```
 cd arrowjs-installer
-chmod u+x build.sh
 ./build.sh
 
 ```

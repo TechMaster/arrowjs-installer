@@ -3,11 +3,12 @@ os_id=$1
 os_version=$2
 toggle=$3
 
+function activeNginxUbuntu {
+    service nginx $toggle
+}
+
 function activeNginxCenOS6 {
-    nginx_service=`service  --status-all | grep nginx`
-    spaceIndex=`expr index "$nginx_service" " "`
-    nginx_service=${nginx_service:0:spaceIndex}
-    service $nginx_service $toggle
+    service nginx $toggle
 }
 
 function activeNginxCenOS7 {
@@ -28,13 +29,27 @@ function activeNginxCenOS {
     esac
 }
 
+function activeNginxFedora {
+    service nginx $toggle
+}
+
+function activeNginxDebian {
+    service nginx $toggle
+}
+
 function activeNginx {
     case "$os_id" in
         ubuntu)
-            service nginx $toggle
+            activeNginxUbuntu
             ;;
         centos)
             activeNginxCenOS
+            ;;
+        fedora)
+            activeNginxFedora
+            ;;
+        debian)
+            activeNginxDebian
             ;;
     esac
 }
