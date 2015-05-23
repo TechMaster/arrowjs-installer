@@ -135,9 +135,6 @@ function installPostgresDebian {
     apt-key add ACCC4CF8.asc
     apt-get -y update
     apt-get -y install postgresql
-
-    echo "Initialize database for first time use"
-    /usr/pgsql-9.4/bin/postgresql94-setup initdb
 }
 
 function installPostgres {

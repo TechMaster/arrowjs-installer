@@ -1,10 +1,57 @@
 #!/bin/bash
-# Get Redis path from parameter 1
-path="$1/src/"
+os_id=$1
+os_version=$2
+toggle=$3
 
-# Start/Stop Redis with parameter 2
-if [ "$2" == "start" ]; then
-    ${path}redis-server --daemonize yes
-else
-    ${path}redis-cli shutdown
-fi
+function activeRedisUbuntu {
+    service redis-server $toggle
+}
+
+function activeRedisCenOS6 {
+    service redis $toggle
+}
+
+function activeRedisCenOS7 {
+    systemctl $toggle redis
+}
+
+function activeRedisCenOS {
+    case "$os_version" in
+        6)
+            activeRedisCenOS6
+            ;;
+        7)
+            activeRedisCenOS7
+            ;;
+        *)
+            activeRedisCenOS6
+            ;;
+    esac
+}
+
+function activeRedisFedora {
+    service redis $toggle
+}
+
+function activeRedisDebian {
+    service redis-server $toggle
+}
+
+function activeRedis {
+    case "$os_id" in
+        ubuntu)
+            activeRedisUbuntu
+            ;;
+        centos)
+            activeRedisCenOS
+            ;;
+        fedora)
+            activeRedisFedora
+            ;;
+        debian)
+            activeRedisDebian
+            ;;
+    esac
+}
+
+activeRedis

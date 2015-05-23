@@ -11,6 +11,7 @@ function configListenAddresses {
 function configPostgres {
     case "$os_id" in
         ubuntu)
+            path="/etc/postgresql/9.4/main/postgresql.conf"
             configListenAddresses $path
             ;;
         centos)

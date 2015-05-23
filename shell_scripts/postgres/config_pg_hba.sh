@@ -17,6 +17,7 @@ function addIp {
 function configPostgresPgHba {
     case "$os_id" in
         ubuntu)
+            path="/etc/postgresql/9.4/main/pg_hba.conf"
             addIp $path
             ;;
         centos)

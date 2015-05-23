@@ -27,7 +27,7 @@
             <pre>{{ postgres.info }}</pre>
         </div>
 
-        <div class="col-sm-6">
+        <div class="col-sm-6 btn-ic-postgres">
             {% if postgres.need_install %}
                 <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
                     Install
@@ -55,7 +55,8 @@
 
         <div class="col-sm-6">
             {% if redis.need_install %}
-                <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install
+                <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">
+                    Install
                 </button>
             {% endif %}
         </div>
@@ -121,6 +122,70 @@
     </div>
 
     <p>&nbsp;</p>
+
+    <!-- Postgres config modal -->
+    <div class="modal fade" id="postgres-config-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">PostgreSQL first time configuration</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="frm-config-postgres">
+                        <h4>Host-based authentication (pg_hba.conf)</h4>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="address" value="all"/>
+                                Allow any user connect to Postgres
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="address" value="custom"/>
+                                Allow users from the addresses below connect to Postgres
+                                <input type="text" name="address2" class="form-control"
+                                       placeholder="Example: 192.168.1.1/32" style="margin-top: 15px; width: 60%;"
+                                       disabled="disabled"/>
+                            </label>
+                        </div>
+
+                        <hr/>
+
+                        <h4>Listening Address (postgresql.conf)</h4>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="listen_addresses" value="*"/>
+                                Allow Remote connect
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">
+                                <input type="radio" name="listen_addresses" value="localhost" required="required"/>
+                                Allow only Local connect
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="savePostgresConfiguration()">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres config modal -->
 {% endblock %}
 
 {% block scripts %}
@@ -129,6 +194,7 @@
     <script>
         var postgres_process = $('#postgres-process');
         var postgres_status = $('#postgres-status');
+        var postgres_button = $('.btn-ic-postgres');
 
         var redis_process = $('#redis-process');
         var redis_status = $('#redis-status');
@@ -170,6 +236,7 @@
 
         socket.on('install_postgres_completed', function (data) {
             postgres_status.text('Postgres installation has completed').css('color', 'green');
+            postgres_button.html('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postgres-config-modal">First time config</button>');
         });
 
         socket.on('install_redis_process', function (data) {
@@ -230,5 +297,56 @@
 
             socket.emit('install_pm2', '');
         }
+
+        function savePostgresConfiguration(button) {
+            // Validate form
+            var err_msg = '';
+            var address = $('input[name="address"]');
+            var listen_addresses = $('input[name="listen_addresses"]');
+
+            if (!address.is(':checked')) {
+                err_msg += "Host-based authentication is required.\n";
+            } else if ($(address[1]).is(':checked') && $('input[name="address2"]').val() == "") {
+                err_msg += "Host-based authentication is required (Missing IP addresses).\n";
+            }
+
+            if (!listen_addresses.is(':checked')) {
+                err_msg += "Listening Address is required.\n";
+            }
+
+            if (err_msg) {
+                alert(err_msg);
+                return false;
+            }
+
+            // Save data by ajax post
+            $.ajax({
+                url: '/config-postgres',
+                type: 'post',
+                data: $('#frm-config-postgres').serialize()
+            }).done(function (result, status) {
+                if (result == 'success'){
+                    postgres_button.html('<div class="alert-success">Config Postgres for first time successfully</div>');
+                }else{
+                    var html = '<div class="alert-warning">'+result+'</div>' +
+                            '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postgres-config-modal">' +
+                            'First time config' +
+                            '</button>';
+                    postgres_button.html(html);
+                }
+
+                $('#postgres-config-modal').modal('hide');
+            }).fail(function (error, status) {
+                alert(error, status);
+            });
+        }
+
+        $('input[name="address"]').on('click', function () {
+            if ($(this).val() == "custom") {
+                $('input[name="address2"]').removeAttr('disabled');
+            } else {
+                $('input[name="address2"]').attr('disabled', 'disabled');
+            }
+        });
     </script>
 {% endblock %}

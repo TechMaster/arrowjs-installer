@@ -9,11 +9,11 @@ function getOsInfo() {
     return new Promise(function (fulfill, reject) {
         child_process.exec('./shell_scripts/os/get_os_info.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
             if (err) {
-                reject(err);
-            }
-
-            if (stdout) {
-                fulfill(stdout);
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout);
+                }
             }
         });
     });
@@ -25,25 +25,65 @@ function getPostgresInfo() {
 
         child_process.exec('./shell_scripts/postgres/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
-                reject(err);
-            }
-
-            if (stdout.trim()) {
-                _installedPostgres = true;
-
-                results = {
-                    'info': 'Postgres has been installed \nVersion:' + stdout,
-                    'need_install': 0
-                };
-                fulfill(results);
+                fulfill(err);
             } else {
-                results = {
-                    'info': 'Postgres has not been installed.',
-                    'need_install': 1
-                };
-                fulfill(results);
+                if (stdout.trim()) {
+                    _installedPostgres = true;
+
+                    results = {
+                        'info': 'Postgres has been installed \nVersion:' + stdout.trim(),
+                        'need_install': 0
+                    };
+                    fulfill(results);
+                } else {
+                    results = {
+                        'info': 'Postgres has not been installed.',
+                        'need_install': 1
+                    };
+                    fulfill(results);
+                }
             }
         });
+    });
+}
+
+function configPgHbaConf(data) {
+    return new Promise(function (fulfill, reject) {
+        if (data.address == 'all') {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+                if (err) {
+                    reject('ERROR: ' + err);
+                } else {
+                    fulfill('success');
+                }
+            });
+        } else if (data.address == 'custom') {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion + ' ' + data.address2, function (err, stdout, stderr) {
+                if (err) {
+                    reject('ERROR: ' + err);
+                } else {
+                    fulfill('success');
+                }
+            });
+        } else {
+            reject('Missing options');
+        }
+    });
+}
+
+function configPostgresqlConf(data) {
+    return new Promise(function (fulfill, reject) {
+        if (data.listen_addresses) {
+            child_process.exec("./shell_scripts/postgres/config_postgresql.sh " + _osId + " " + _osVersion + " '" + data.listen_addresses + "'", function (err, stdout, stderr) {
+                if (err) {
+                    reject("ERROR: " + err);
+                } else {
+                    fulfill('success');
+                }
+            });
+        } else {
+            reject('Missing options');
+        }
     });
 }
 
@@ -53,26 +93,23 @@ function getRedisInfo() {
 
         child_process.exec('./shell_scripts/redis/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
-                reject(err);
-            }
-
-            stdout = stdout.trim();
-
-            if (stdout == "") {
-                results = {
-                    'info': 'Redis has not been installed.',
-                    'need_install': 1
-                };
-                fulfill(results);
+                fulfill(err);
             } else {
-                _redisPath = stdout;
-                _installedRedis = true;
+                if (stdout.trim()) {
+                    _installedRedis = true;
 
-                results = {
-                    'info': 'Redis has been installed \nVersion: ' + stdout.split('-')[1],
-                    'need_install': 0
-                };
-                fulfill(results);
+                    results = {
+                        'info': 'Redis has been installed \nVersion: ' + stdout.trim(),
+                        'need_install': 0
+                    };
+                    fulfill(results);
+                } else {
+                    results = {
+                        'info': 'Redis has not been installed.',
+                        'need_install': 1
+                    };
+                    fulfill(results);
+                }
             }
         });
     });
@@ -84,25 +121,25 @@ function getNginxInfo() {
 
         child_process.exec('./shell_scripts/nginx/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
-                reject(err);
-            }
-
-            if (stdout.trim()) {
-                _installedNginx = true;
-
-                var version = stderr.trim().split('/');
-
-                results = {
-                    'info': 'Nginx has been installed \nVersion: ' + version[1],
-                    'need_install': 0
-                };
-                fulfill(results);
+                fulfill(err);
             } else {
-                results = {
-                    'info': 'Nginx has not been installed.',
-                    'need_install': 1
-                };
-                fulfill(results);
+                if (stdout.trim()) {
+                    _installedNginx = true;
+
+                    var version = stderr.trim().split('/');
+
+                    results = {
+                        'info': 'Nginx has been installed \nVersion: ' + version[1],
+                        'need_install': 0
+                    };
+                    fulfill(results);
+                } else {
+                    results = {
+                        'info': 'Nginx has not been installed.',
+                        'need_install': 1
+                    };
+                    fulfill(results);
+                }
             }
         });
     });
@@ -114,23 +151,23 @@ function getPm2Info() {
 
         child_process.exec('./shell_scripts/pm2/check_installed.sh', function (err, stdout, stderr) {
             if (err) {
-                reject(err);
-            }
-
-            if (stdout.trim()) {
-                _installedPm2 = true;
-
-                results = {
-                    'info': 'PM2 has been installed \nVersion:' + stdout,
-                    'need_install': 0
-                };
-                fulfill(results);
+                fulfill(err);
             } else {
-                results = {
-                    'info': 'PM2 has not been installed.',
-                    'need_install': 1
-                };
-                fulfill(results);
+                if (stdout.trim()) {
+                    _installedPm2 = true;
+
+                    results = {
+                        'info': 'PM2 has been installed \nVersion:' + stdout,
+                        'need_install': 0
+                    };
+                    fulfill(results);
+                } else {
+                    results = {
+                        'info': 'PM2 has not been installed.',
+                        'need_install': 1
+                    };
+                    fulfill(results);
+                }
             }
         });
     });
@@ -157,8 +194,8 @@ router.get('/', function (req, res) {
             nginx: results[3],
             pm2: results[4]
         })
-    }).catch(function (err) {
-        return res.send(err);
+    }).catch(function (error) {
+        res.send("Error in checking installation: " + error);
     });
 });
 
@@ -186,6 +223,27 @@ router.post('/login', function (req, res) {
         res.locals.msg = '<div class="alert-warning">Wrong password</div>';
         return res.render('login');
     }
+});
+
+/* POST login page */
+router.post('/config-postgres', function (req, res) {
+    // Check login
+    if (!req.session.auth) {
+        return res.redirect('/login');
+    }
+
+    var data = req.body;
+
+    Promise.all([
+        configPgHbaConf(data),
+        configPostgresqlConf(data)
+    ]).then(function (results) {
+        console.log('res', results);
+        res.send("success");
+    }).catch(function (err) {
+        console.log("err", err);
+        res.send("ERROR: " + err);
+    });
 });
 
 module.exports = router;

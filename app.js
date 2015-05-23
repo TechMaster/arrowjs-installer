@@ -11,7 +11,6 @@ var child_process = require('child_process');
 var index = require('./routes/index');
 var websites = require('./routes/websites');
 var services = require('./routes/services');
-var postgres = require('./routes/postgres');
 var nginx = require('./routes/nginx');
 
 var app = express();
@@ -28,7 +27,6 @@ global._installedPostgres = false;
 global._installedRedis = false;
 global._installedNginx = false;
 global._installedPm2 = false;
-global._redisPath = '~/redis-3.0.1';    // Reference to install_redis.sh
 
 // View engine setup
 app.set('view engine', 'html');
@@ -53,7 +51,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/websites', websites);
 app.use('/services', services);
-app.use('/postgres', postgres);
 app.use('/nginx', nginx);
 
 // Catch 404 and forward to error handler

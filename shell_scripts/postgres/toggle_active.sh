@@ -3,7 +3,11 @@ os_id=$1
 os_version=$2
 toggle=$3
 
-function activePostgresCenOS6 {
+function activePostgresUbuntu {
+    service postgresql $toggle
+}
+
+}function activePostgresCenOS6 {
     pgservice=`service  --status-all | grep postgres`
     spaceIndex=`expr index "$pgservice" " "`
     pgservice=${pgservice:0:spaceIndex}
@@ -31,7 +35,7 @@ function activePostgresCenOS {
 function activePostgres {
     case "$os_id" in
         ubuntu)
-            service postgresql $toggle
+            activePostgresUbuntu
             ;;
         centos)
             activePostgresCenOS

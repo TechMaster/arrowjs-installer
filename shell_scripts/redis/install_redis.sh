@@ -1,37 +1,40 @@
 #!/bin/bash
-redis_version="3.0.1"
+os_id=$1
+os_version=$2
 
-# Check required packages
-function checkIfCommandExist {
-    command -v $1 >/dev/null 2>&1 || {
-        echo 0
-        return
-    }
-    echo 1
+function installRedisUbuntu {
+    apt-get -y install redis-server
 }
 
-# Install gcc 
-if [ $(checkIfCommandExist gcc) -eq 0 ]; then
-    yum install gcc -y &> /dev/null
-fi
+function installRedisCentOS {
+    rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    yum --enablerepo=remi,remi-test -y install redis
+}
 
-# Install cc
-if [ $(checkIfCommandExist cc) -eq 0 ]; then
-    yum install cc -y &> /dev/null
-fi
+function installRedisFedora {
+    rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    yum --enablerepo=remi,remi-test -y install redis
+}
 
-# Install redis 3.0.0
-cd ~
-if [ ! -f redis-${redis_version}.tar.gz ]; then
-    wget http://download.redis.io/releases/redis-${redis_version}.tar.gz
-fi
+function installRedisDebian {
+    apt-get -y install redis-server
+}
 
-if [ ! -d redis-${redis_version} ] && [ -f redis-${redis_version}.tar.gz ]; then
-    tar xzf redis-${redis_version}.tar.gz
-    cd redis-${redis_version}
-    make
-fi
-
-# Remove unused files
-cd ~
-rm -rf redis-${redis_version}.tar.gz
+function installRedis {
+    case "$os_id" in
+        ubuntu)
+            installRedisUbuntu
+            ;;
+        centos)
+            installRedisCentOS
+            ;;
+        fedora)
+            installRedisFedora
+            ;;
+        debian)
+            installRedisDebian
+            ;;
+    esac
+}
