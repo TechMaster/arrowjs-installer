@@ -92,7 +92,6 @@ function getRedisInfo() {
         var results = {};
 
         child_process.exec('./shell_scripts/redis/check_installed.sh', function (err, stdout, stderr) {
-            console.log('-------------', 'ERR: ' + err, 'STDOUT: ' + stdout, 'STDERR: ' + stderr);
             if (err) {
                 fulfill(err);
             } else {

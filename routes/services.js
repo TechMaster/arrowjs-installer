@@ -21,7 +21,7 @@ function checkPostgresActive() {
 
 function checkRedisActive() {
     return new Promise(function (fulfill, reject) {
-        child_process.exec('./shell_scripts/redis/check_active.sh ' + _redisPath, function (err, stdout, stderr) {
+        child_process.exec('./shell_scripts/redis/check_active.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
             if (stdout.trim() == "PONG") {
                 fulfill(1)
             } else {
