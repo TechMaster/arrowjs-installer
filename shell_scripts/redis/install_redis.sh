@@ -38,3 +38,5 @@ function installRedis {
             ;;
     esac
 }
+
+installRedis

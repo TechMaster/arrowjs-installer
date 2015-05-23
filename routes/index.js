@@ -31,7 +31,7 @@ function getPostgresInfo() {
                     _installedPostgres = true;
 
                     results = {
-                        'info': 'Postgres has been installed \nVersion:' + stdout.trim(),
+                        'info': 'Postgres has been installed \nVersion: ' + stdout.trim(),
                         'need_install': 0
                     };
                     fulfill(results);
@@ -92,6 +92,7 @@ function getRedisInfo() {
         var results = {};
 
         child_process.exec('./shell_scripts/redis/check_installed.sh', function (err, stdout, stderr) {
+            console.log('-------------', 'ERR: ' + err, 'STDOUT: ' + stdout, 'STDERR: ' + stderr);
             if (err) {
                 fulfill(err);
             } else {
@@ -157,7 +158,7 @@ function getPm2Info() {
                     _installedPm2 = true;
 
                     results = {
-                        'info': 'PM2 has been installed \nVersion:' + stdout,
+                        'info': 'PM2 has been installed \nVersion: ' + stdout,
                         'need_install': 0
                     };
                     fulfill(results);

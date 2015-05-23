@@ -7,7 +7,7 @@ function activePostgresUbuntu {
     service postgresql $toggle
 }
 
-}function activePostgresCenOS6 {
+function activePostgresCenOS6 {
     pgservice=`service  --status-all | grep postgres`
     spaceIndex=`expr index "$pgservice" " "`
     pgservice=${pgservice:0:spaceIndex}
@@ -32,6 +32,14 @@ function activePostgresCenOS {
     esac
 }
 
+function activePostgresFedora {
+    service postgresql-9.4 $toggle
+}
+
+function activePostgresDebian {
+    service postgresql $toggle
+}
+
 function activePostgres {
     case "$os_id" in
         ubuntu)
@@ -39,6 +47,12 @@ function activePostgres {
             ;;
         centos)
             activePostgresCenOS
+            ;;
+        fedora)
+            activePostgresFedora
+            ;;
+        debian)
+            activePostgresDebian
             ;;
     esac
 }
