@@ -28,34 +28,15 @@ function checkPGActiveCenOS {
     esac
 }
 
-function checkPGActiveFedora21 {
-    pg_active=`service  --status-all | grep postgres | grep running`
-}
-
 function checkPGActiveFedora {
-    case "$os_version" in
-        21)
-            checkPGActiveFedora21
-            ;;
-        *)
-            checkPGActiveFedora21
-            ;;
-    esac
-}
-
-function checkPGActiveDebian8 {
     pg_active=`service  --status-all | grep postgres | grep running`
 }
 
 function checkPGActiveDebian {
-    case "$os_version" in
-        8)
-            checkPGActiveDebian8
-            ;;
-        *)
-            checkPGActiveDebian8
-            ;;
-    esac
+    check=`service postgresql status | grep inactive`
+    if [ -z "$check" ]; then
+        pg_active="active"
+    fi
 }
 
 function checkPGActive {

@@ -1,6 +1,14 @@
 #!/bin/bash
 running_port=3000
 
+# Grant execution permission for shell_scripts directory
+chmod -R u+x shell_scripts
+
+# Get os_id
+os=`./shell_scripts/os/get_os_id.sh`
+os_name=`echo $os | awk -F"-" '{print $1}'`
+os_version=`echo $os | awk -F"-" '{print $2}'`
+
 function checkIfCommandExist {
     # Return 0 if a command does not exist
     command -v $1 >/dev/null 2>&1 || {
@@ -12,15 +20,15 @@ function checkIfCommandExist {
 
 function installPackage {
     # Install package with package name is argument 1
-    case "$osname" in
+    case "$os_id" in
         ubuntu)
-            apt-get -q -y install  $1
+            apt-get -y install  $1
             ;;
         debian)
-            apt-get -q -y install $1
+            apt-get -y install $1
             ;;
         linuxmint)
-            apt-get -q -y install $1
+            apt-get -y install $1
             ;;
         centos)
             yum -y install $1
@@ -123,15 +131,6 @@ if [ "$install" == "1" ]; then
     source shell_scripts/node_path.sh -a
 fi
 
-# Grant execution permission for shell_scripts directory
-chmod -R u+x shell_scripts
-
-# Open port for web installer
-os=`./shell_scripts/os/get_os_id.sh`
-os_name=`echo $os | awk -F"-" '{print $1}'`
-os_version=`echo $os | awk -F"-" '{print $2}'`
-./shell_scripts/os/open_port.sh $os_name $os_version $running_port
-
 # Install node modules
 echo "Install node modules to run Web installer"
 npm install
@@ -157,6 +156,9 @@ done
 echo -n $password | md5sum | awk '{print $1}' > init_password
 echo ""
 echo "Init password was created successfully"
+
+# Open port for web installer
+./shell_scripts/os/open_port.sh $os_name $os_version $running_port
 
 # Run web installer
 node bin/www

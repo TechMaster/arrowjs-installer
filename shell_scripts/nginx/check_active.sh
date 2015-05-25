@@ -7,7 +7,7 @@ function checkNginxActiveUbuntu {
 }
 
 function checkNginxActiveCenOS6 {
-    nginx_active=`service  --status-all | grep nginx | grep running`
+    nginx_active=`service --status-all | grep nginx | grep running`
 }
 
 function checkNginxActiveCenOS7 {
@@ -29,11 +29,11 @@ function checkNginxActiveCenOS {
 }
 
 function checkNginxActiveFedora {
-    nginx_active=`service  --status-all | grep nginx | grep running`
+    nginx_active=`service nginx status | grep running`
 }
 
 function checkNginxActiveDebian {
-    nginx_active=`service  --status-all | grep nginx | grep running`
+    nginx_active=`service nginx status | grep running`
 }
 
 function checkNginxActive {

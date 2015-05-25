@@ -33,8 +33,8 @@ function configPostgresPgHba {
     esac
 
     # Change all method to md5
-    sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  md5/' $path
-    sed -i 's/\(^host\)\( .*all.* \)\( .* \)\( .* \)\(.* \).*/\1\2\3\4\ md5/' $path
+    #sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  md5/' $path
+    #sed -i 's/\(^host\)\( .*all.* \)\( .* \)\( .* \)\(.* \).*/\1\2\3\4\ md5/' $path
 }
 
 configPostgresPgHba

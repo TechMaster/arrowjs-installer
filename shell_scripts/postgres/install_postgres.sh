@@ -157,4 +157,10 @@ function installPostgres {
     esac
 }
 
+# Install postgres
+echo "Install Postgres"
 installPostgres
+
+# Open port 5432 for postgres
+echo "Open port 5432 for Postgres"
+./shell_scripts/os/open_port.sh $os_id $os_version 5432
