@@ -51,4 +51,3 @@ installNginx
 # Open port 80 for Nginx
 echo "Open port 80"
 ./shell_scripts/os/open_port.sh $os_id $os_version 80
-

@@ -16,7 +16,7 @@ Install app
 
 ```
 cd arrowjs-installer
-./build.sh
+./install
 
 ```
 
