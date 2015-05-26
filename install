@@ -6,7 +6,7 @@ chmod -R u+x shell_scripts
 
 # Get os_id
 os=`./shell_scripts/os/get_os_id.sh`
-os_name=`echo $os | awk -F"-" '{print $1}'`
+os_id=`echo $os | awk -F"-" '{print $1}'`
 os_version=`echo $os | awk -F"-" '{print $2}'`
 
 function checkIfCommandExist {
@@ -158,7 +158,7 @@ echo ""
 echo "Init password was created successfully"
 
 # Open port for web installer
-./shell_scripts/os/open_port.sh $os_name $os_version $running_port
+./shell_scripts/os/open_port.sh $os_id $os_version $running_port
 
 # Run web installer
 node bin/www
