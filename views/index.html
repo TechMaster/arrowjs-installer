@@ -15,8 +15,25 @@
 {% endblock %}
 
 {% block content %}
-    <h3>Server information</h3>
-    <pre>{{ os_info }}</pre>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Server information</h3>
+            <div>IP Address: {{ os_info.ip }}</div>
+            <div>Operating system: {{ os_info.os }}</div>
+            <div>Architecture: {{ os_info.arch }}</div>
+            <div>Total Memory: {{ os_info.totalmem }} MB</div>
+            <div>Free Memory: {{ os_info.freemem }} MB</div>
+            <div>CPU: {{ os_info.os_core }} core</div>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>Node information</h3>
+            <div>Node version: {{ node_info.node_version }}</div>
+            <div>Iojs version: {{ node_info.iojs_version }}</div>
+            <div>Npm version: {{ node_info.npm_version }}</div>
+        </div>
+    </div>
 
     <hr/>
 
@@ -25,6 +42,17 @@
     <div class="row">
         <div class="col-sm-6">
             <pre>{{ postgres.info }}</pre>
+            {% if postgres.need_install %}
+            {% else %}
+                Configuration files: <br/>
+                {% if postgres_config_path[0] != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#postgres-hba-modal">{{ postgres_config_path[0] }}</a><br/>
+                {% endif %}
+
+                {% if postgres_config_path[1] != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#postgres-psql-modal">{{ postgres_config_path[1] }}</a>
+                {% endif %}
+            {% endif %}
         </div>
 
         <div class="col-sm-6 btn-ic-postgres">
@@ -51,6 +79,13 @@
     <div class="row">
         <div class="col-sm-6">
             <pre>{{ redis.info }}</pre>
+            {% if redis.need_install %}
+            {% else %}
+                Configuration file:
+                {% if redis_config_path != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#redis-config-modal">{{ redis_config_path }}</a>
+                {% endif %}
+            {% endif %}
         </div>
 
         <div class="col-sm-6">
@@ -77,11 +112,19 @@
     <div class="row">
         <div class="col-sm-6">
             <pre>{{ nginx.info }}</pre>
+            {% if nginx.need_install %}
+            {% else %}
+                Configuration file:
+                {% if nginx_config_path != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#nginx-config-modal">{{ nginx_config_path }}</a>
+                {% endif %}
+            {% endif %}
         </div>
 
         <div class="col-sm-6">
             {% if nginx.need_install %}
-                <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install
+                <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">
+                    Install
                 </button>
             {% endif %}
         </div>
@@ -136,6 +179,20 @@
 
                 <div class="modal-body">
                     <form id="frm-config-postgres">
+                        <h4>Set password for Postgres user</h4>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" style="width: 60%;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm password</label>
+                            <input type="password" name="confirm_password" class="form-control" style="width: 60%;"/>
+                        </div>
+
+                        <hr/>
+
                         <h4>Host-based authentication (pg_hba.conf)</h4>
 
                         <div class="form-group">
@@ -185,6 +242,98 @@
         </div>
     </div>
     <!-- End Postgres config modal -->
+
+    <!-- Postgres pg_hba.conf modal -->
+    <div class="modal fade" id="postgres-hba-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview pg_hba.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="min-height: 250px; padding: 15px; background-color: #000000; color: #5cb85c;">{{ postgres_config_hba }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres pg_hba.conf modal -->
+
+    <!-- Postgres postgresql.conf modal -->
+    <div class="modal fade" id="postgres-psql-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview postgresql.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ postgres_config_pg }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres postgresql.conf modal -->
+
+    <!-- Redis config modal -->
+    <div class="modal fade" id="redis-config-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview redis.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ redis_config_content }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Redis config modal -->
+
+    <!-- Nginx config modal -->
+    <div class="modal fade" id="nginx-config-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview nginx.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ nginx_config_content }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Nginx config modal -->
 {% endblock %}
 
 {% block scripts %}
@@ -302,6 +451,14 @@
             var err_msg = '';
             var address = $('input[name="address"]');
             var listen_addresses = $('input[name="listen_addresses"]');
+            var password = $('input[name="password"]');
+            var confirm_password = $('input[name="confirm_password"]');
+
+            if (password.val() == ''){
+                err_msg += "Password is required.\n";
+            }else if(password.val() != confirm_password.val()){
+                err_msg += "Password and confirm password does not match.\n";
+            }
 
             if (!address.is(':checked')) {
                 err_msg += "Host-based authentication is required.\n";

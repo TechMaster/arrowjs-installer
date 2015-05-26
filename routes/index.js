@@ -2,6 +2,7 @@ var express = require('express');
 var crypto = require('crypto');
 var child_process = require('child_process');
 var fs = require('fs');
+var os = require('os');
 
 var router = express.Router();
 
@@ -12,7 +13,26 @@ function getOsInfo() {
                 fulfill(err);
             } else {
                 if (stdout) {
-                    fulfill(stdout);
+                    var os_info = JSON.parse(stdout);
+                    os_info.totalmem = Math.round(os.totalmem() / 1048576);
+                    os_info.freemem = Math.round(os.freemem() / 1048576);
+                    os_info.os_core = os.cpus().length;
+                    fulfill(os_info);
+                }
+            }
+        });
+    });
+}
+
+function getNodeInfo() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/os/get_node_info.sh', function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    var node_info = JSON.parse(stdout);
+                    fulfill(node_info);
                 }
             }
         });
@@ -49,8 +69,12 @@ function getPostgresInfo() {
 
 function configPgHbaConf(data) {
     return new Promise(function (fulfill, reject) {
+        if (data.password == '') {
+            reject('Missing options');
+        }
+
         if (data.address == 'all') {
-            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion + ' ' + data.password, function (err, stdout, stderr) {
                 if (err) {
                     reject('ERROR: ' + err);
                 } else {
@@ -58,7 +82,7 @@ function configPgHbaConf(data) {
                 }
             });
         } else if (data.address == 'custom') {
-            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion + ' ' + data.address2, function (err, stdout, stderr) {
+            child_process.exec('./shell_scripts/postgres/config_pg_hba.sh ' + _osId + ' ' + _osVersion + ' ' + data.password + ' ' + data.address2, function (err, stdout, stderr) {
                 if (err) {
                     reject('ERROR: ' + err);
                 } else {
@@ -84,6 +108,54 @@ function configPostgresqlConf(data) {
         } else {
             reject('Missing options');
         }
+    });
+}
+
+function getPostgresConfigPath() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/postgres/get_config_path.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout.match(/\S+/g));
+                }else{
+                    fulfill([0, 0]);
+                }
+            }
+        });
+    });
+}
+
+function getPostgresConfigHbaContent() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/postgres/get_config_content.sh ' + _osId + ' ' + _osVersion + ' 1', function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout);
+                }else{
+                    fulfill("Cannot find config file pg_hba.conf");
+                }
+            }
+        });
+    });
+}
+
+function getPostgresConfigPgContent() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/postgres/get_config_content.sh ' + _osId + ' ' + _osVersion + ' 2', function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout);
+                }else{
+                    fulfill("Cannot find config file postgresql.conf");
+                }
+            }
+        });
     });
 }
 
@@ -115,6 +187,38 @@ function getRedisInfo() {
     });
 }
 
+function getRedisConfigPath() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/redis/get_config_path.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout.trim());
+                }else{
+                    fulfill(0);
+                }
+            }
+        });
+    });
+}
+
+function getRedisConfigContent() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/redis/get_config_content.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout);
+                }else{
+                    fulfill("Cannot find config file redis.conf");
+                }
+            }
+        });
+    });
+}
+
 function getNginxInfo() {
     return new Promise(function (fulfill, reject) {
         var results = {};
@@ -139,6 +243,38 @@ function getNginxInfo() {
                         'need_install': 1
                     };
                     fulfill(results);
+                }
+            }
+        });
+    });
+}
+
+function getNginxConfigPath() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/nginx/get_config_path.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout.trim());
+                }else{
+                    fulfill(0);
+                }
+            }
+        });
+    });
+}
+
+function getNginxConfigContent() {
+    return new Promise(function (fulfill, reject) {
+        child_process.exec('./shell_scripts/nginx/get_config_content.sh ' + _osId + ' ' + _osVersion, function (err, stdout, stderr) {
+            if (err) {
+                fulfill(err);
+            } else {
+                if (stdout) {
+                    fulfill(stdout);
+                }else{
+                    fulfill("Cannot find config file nginx.conf");
                 }
             }
         });
@@ -182,17 +318,33 @@ router.get('/', function (req, res) {
 
     Promise.all([
         getOsInfo(),
+        getNodeInfo(),
         getPostgresInfo(),
+        getPostgresConfigPath(),
+        getPostgresConfigHbaContent(),
+        getPostgresConfigPgContent(),
         getRedisInfo(),
+        getRedisConfigPath(),
+        getRedisConfigContent(),
         getNginxInfo(),
+        getNginxConfigPath(),
+        getNginxConfigContent(),
         getPm2Info()
     ]).then(function (results) {
         return res.render('index', {
             os_info: results[0],
-            postgres: results[1],
-            redis: results[2],
-            nginx: results[3],
-            pm2: results[4]
+            node_info: results[1],
+            postgres: results[2],
+            postgres_config_path: results[3],
+            postgres_config_hba: results[4],
+            postgres_config_pg: results[5],
+            redis: results[6],
+            redis_config_path: results[7],
+            redis_config_content: results[8],
+            nginx: results[9],
+            nginx_config_path: results[10],
+            nginx_config_content: results[11],
+            pm2: results[12]
         })
     }).catch(function (error) {
         res.send("Error in checking installation: " + error);
@@ -238,10 +390,8 @@ router.post('/config-postgres', function (req, res) {
         configPgHbaConf(data),
         configPostgresqlConf(data)
     ]).then(function (results) {
-        console.log('res', results);
         res.send("success");
     }).catch(function (err) {
-        console.log("err", err);
         res.send("ERROR: " + err);
     });
 });

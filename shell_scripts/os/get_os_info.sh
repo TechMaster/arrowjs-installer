@@ -3,31 +3,34 @@ os_id=$1
 os_version=$2
 
 function getInfoUbuntu {
-    IP=`ip addr| grep inet| head -3| tail -1| awk '{print $2}'| sed 's/...$//'`
-    echo "IP address: $IP"
+    ip=`ip addr| grep inet| head -3| tail -1| awk '{print $2}'| sed 's/...$//'`
+
+    os_name=`lsb_release -a | grep Description | awk  -F":" '{print $2}' | sed 's/...$//'`
+
+    os_architect=`uname -m`
+
+    echo "{\"ip\": \"$ip\", \"os\": \"$os_name\", \"arch\": \"$os_architect\"}"
 }
 
 function getInfoCenOS6 {
-    IP=`ifconfig | grep inet | awk '{ print $2; }' | awk -F":"  '{print $2}' | head -1`
-    echo "IP address: $IP"
+    ip=`ifconfig | grep inet | awk '{ print $2; }' | awk -F":"  '{print $2}' | head -1`
 
-    osname=`cat /etc/system-release`
-    echo "Operating system: $osname"
+    os_name=`cat /etc/system-release`
 
-    osEdition=`uname -m | grep 64`
-    echo "Architecture: $osEdition"
+    os_architect=`uname -m`
+
+    echo "{\"ip\": \"$ip\", \"os\": \"$os_name\", \"arch\": \"$os_architect\"}"
 }
 
 function getInfoCenOS7 {
-    IP=`ip addr|grep inet | head -3 | tail -1 | sed 's/inet\(.* \)\(.* \)\(.* \)\(.* \)\(.* \).*/\1/' | sed 's/ //g' | sed 's/...$//'`
-    echo "IP address: $IP"
+    ip=`ip addr|grep inet | head -3 | tail -1 | sed 's/inet\(.* \)\(.* \)\(.* \)\(.* \)\(.* \).*/\1/' | sed 's/ //g' | sed 's/...$//'`
 
-    osname=`cat /etc/os-release|grep PRETTY_NAME=| head -1 | sed 's/\"//g'`
-    osname=${osname:12}
-    echo "Operating system: $osname"
+    os_name=`cat /etc/os-release|grep PRETTY_NAME= | head -1 | sed 's/\"//g'`
+    os_name=${os_name:12}
 
-    osEdition=`uname -m | grep 64`
-    echo "Architecture: $osEdition"
+    os_architect=`uname -m`
+
+    echo "{\"ip\": \"$ip\", \"os\": \"$os_name\", \"arch\": \"$os_architect\"}"
 }
 
 function getInfoCenOS {
