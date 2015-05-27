@@ -2,15 +2,33 @@
 os_id=$1
 os_version=$2
 
-function checkRedisActiveUbuntu {
+function checkRedisActiveUbuntu1204 {
     check=`service redis-server status | awk -F"not" '{print $2}'`
     if [[ -z "$check" ]] ; then
          redis_active="running"
     fi
 }
 
+function checkRedisActiveUbuntu1504 {
+    redis_active=`service redis-server status | grep running`
+}
+
+function checkRedisActiveUbuntu {
+    case "$os_version" in
+        1204)
+            checkRedisActiveUbuntu1204
+            ;;
+        1504)
+            checkRedisActiveUbuntu1504
+            ;;
+        *)
+            checkRedisActiveUbuntu1504
+            ;;
+    esac
+}
+
 function checkRedisActiveCenOS6 {
-    redis_active=`service  --status-all | grep redis | grep running`
+    redis_active=`service --status-all | grep redis | grep running`
 }
 
 function checkRedisActiveCenOS7 {
@@ -32,14 +50,11 @@ function checkRedisActiveCenOS {
 }
 
 function checkRedisActiveFedora {
-    redis_active=`service  --status-all | grep redis | grep running`
+    redis_active=`service redis status | grep running`
 }
 
 function checkRedisActiveDebian {
-    check=`service redis status | grep inactive`
-    if [ -z "$check" ]; then
-        redis_active="active"
-    fi
+    redis_active=`service redis-server status | grep running`
 }
 
 function checkRedisActive {

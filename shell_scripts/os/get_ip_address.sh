@@ -3,18 +3,18 @@ os_id=$1
 os_version=$2
 
 function getIPAddressUbuntu {
-    IP=`ip addr| grep inet| head -3| tail -1| awk '{print $2}'| sed 's/...$//'`
-    echo -n $IP
+    ip=`ip addr | grep inet | head -3 | tail -1 | awk '{print $2}' | sed 's/...$//'`
+    echo -n $ip
 }
 
 function getIPAddressCenOS6 {
-    IP=`ifconfig | grep inet | awk '{ print $2; }' | awk -F":"  '{print $2}' | head -1`
-    echo -n $IP
+    ip=`ifconfig | grep inet | awk '{ print $2; }' | awk -F":"  '{print $2}' | head -1`
+    echo -n $ip
 }
 
 function getIPAddressCenOS7 {
-    IP=`ip addr|grep inet | head -3 | tail -1 | sed 's/inet\(.* \)\(.* \)\(.* \)\(.* \)\(.* \).*/\1/' | sed 's/ //g' | sed 's/...$//'`
-    echo -n $IP
+    ip=`ip addr | grep inet | head -3 | tail -1 | awk '{print $2}' | sed 's/...$//'`
+    echo -n $ip
 }
 
 function getIPAddressCenOS {

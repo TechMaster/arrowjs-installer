@@ -13,11 +13,15 @@ function getOsInfo() {
                 fulfill(err);
             } else {
                 if (stdout) {
-                    var os_info = JSON.parse(stdout);
-                    os_info.totalmem = Math.round(os.totalmem() / 1048576);
-                    os_info.freemem = Math.round(os.freemem() / 1048576);
-                    os_info.os_core = os.cpus().length;
-                    fulfill(os_info);
+                    try {
+                        var os_info = JSON.parse(stdout);
+                        os_info.totalmem = Math.round(os.totalmem() / 1048576);
+                        os_info.freemem = Math.round(os.freemem() / 1048576);
+                        os_info.os_core = os.cpus().length;
+                        fulfill(os_info);
+                    } catch (error) {
+                        fulfill(error);
+                    }
                 }
             }
         });
@@ -31,8 +35,12 @@ function getNodeInfo() {
                 fulfill(err);
             } else {
                 if (stdout) {
-                    var node_info = JSON.parse(stdout);
-                    fulfill(node_info);
+                    try {
+                        var node_info = JSON.parse(stdout);
+                        fulfill(node_info);
+                    } catch (error) {
+                        fulfill(error);
+                    }
                 }
             }
         });
@@ -119,7 +127,7 @@ function getPostgresConfigPath() {
             } else {
                 if (stdout) {
                     fulfill(stdout.match(/\S+/g));
-                }else{
+                } else {
                     fulfill([0, 0]);
                 }
             }
@@ -135,7 +143,7 @@ function getPostgresConfigHbaContent() {
             } else {
                 if (stdout) {
                     fulfill(stdout);
-                }else{
+                } else {
                     fulfill("Cannot find config file pg_hba.conf");
                 }
             }
@@ -151,7 +159,7 @@ function getPostgresConfigPgContent() {
             } else {
                 if (stdout) {
                     fulfill(stdout);
-                }else{
+                } else {
                     fulfill("Cannot find config file postgresql.conf");
                 }
             }
@@ -195,7 +203,7 @@ function getRedisConfigPath() {
             } else {
                 if (stdout) {
                     fulfill(stdout.trim());
-                }else{
+                } else {
                     fulfill(0);
                 }
             }
@@ -211,7 +219,7 @@ function getRedisConfigContent() {
             } else {
                 if (stdout) {
                     fulfill(stdout);
-                }else{
+                } else {
                     fulfill("Cannot find config file redis.conf");
                 }
             }
@@ -257,7 +265,7 @@ function getNginxConfigPath() {
             } else {
                 if (stdout) {
                     fulfill(stdout.trim());
-                }else{
+                } else {
                     fulfill(0);
                 }
             }
@@ -273,7 +281,7 @@ function getNginxConfigContent() {
             } else {
                 if (stdout) {
                     fulfill(stdout);
-                }else{
+                } else {
                     fulfill("Cannot find config file nginx.conf");
                 }
             }

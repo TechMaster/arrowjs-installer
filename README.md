@@ -5,16 +5,11 @@ This is web application to install ArrowJS framework
 ### Download
 
 Go to the directory which you want to install application
-Clone this app from git
+
+Run these commands with user root:
 
 ```
 git clone https://github.com/quanghuy90hn/arrowjs-installer
-
-```
-    
-Install app
-
-```
 cd arrowjs-installer
 ./install
 

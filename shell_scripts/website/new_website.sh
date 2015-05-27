@@ -4,7 +4,9 @@ os_version=$2
 path=$3
 project_name=$4
 database_name=$5
-running_port=$6
+user=$6
+password=$7
+running_port=$8
 
 # Clone source code form github
 cd $path
@@ -27,7 +29,7 @@ file_backup_path="$sql_path/arrowjs.backup"
 psql -U postgres $database_name < $file_backup_path
 
 # Config database
-
+# need postgres password
 
 # Open port for project
 #echo "Open port ${port} for project ${project_name}"

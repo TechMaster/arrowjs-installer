@@ -3,19 +3,21 @@ os_id=$1
 os_version=$2
 toggle=$3
 
+postgres_version=`./shell_scripts/postgres/check_version.sh | awk -F"." '{print $1,$2}' OFS='.'`
+
 function activePostgresUbuntu {
     service postgresql $toggle
 }
 
 function activePostgresCenOS6 {
-    pgservice=`service  --status-all | grep postgres`
+    pgservice=`service --status-all | grep postgres`
     spaceIndex=`expr index "$pgservice" " "`
     pgservice=${pgservice:0:spaceIndex}
     service $pgservice $toggle
 }
 
 function activePostgresCenOS7 {
-    systemctl $toggle postgresql-9.4
+    systemctl $toggle postgresql-${postgres_version}
 }
 
 function activePostgresCenOS {
@@ -33,7 +35,7 @@ function activePostgresCenOS {
 }
 
 function activePostgresFedora {
-    service postgresql-9.4 $toggle
+    service postgresql-${postgres_version} $toggle
 }
 
 function activePostgresDebian {
