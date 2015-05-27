@@ -6,8 +6,10 @@
 var app = require('../app');
 var debug = require('debug')('arrowjs-installer:server');
 var http = require('http');
-var socket = require('socket.io')();
-var socket_ins = require('../lib/socket_ins.js');
+var child_process = require('child_process');
+var io = require('socket.io')();
+var socket_install = require('../lib/socket_install.js');
+var socket_active = require('../lib/socket_active.js');
 
 /**
  * Get port from environment and store in Express.
@@ -30,9 +32,8 @@ server.on('listening', onListening);
 /**
  * Get event install from user
  */
-socketIo = socket.listen(server);
-
-socketIo.on('connection', function (socket) {
+io = io.listen(server);
+io.sockets.on('connection', function (socket) {
     socket.emit('checking', {
         postgres: _installingPostgres,
         redis: _installingRedis,
@@ -41,23 +42,47 @@ socketIo.on('connection', function (socket) {
     });
 
     socket.on('install_postgres', function (msg) {
-        socket_ins.installPostgres(socket);
+        socket_install.postgres(socket);
         _installingPostgres = true;
     });
 
     socket.on('install_redis', function (msg) {
-        socket_ins.installRedis(socket);
+        socket_install.redis(socket);
         _installingRedis = true;
     });
 
     socket.on('install_nginx', function (msg) {
-        socket_ins.installNginx(socket);
+        socket_install.nginx(socket);
         _installingNginx = true;
     });
 
     socket.on('install_pm2', function (msg) {
-        socket_ins.installPm2(socket);
+        socket_install.pm2(socket);
         _installingPm2 = true;
+    });
+
+    socket.on('start_postgres', function (msg, callback) {
+        socket_active.postgres(socket, callback, 'start');
+    });
+
+    socket.on('stop_postgres', function (msg, callback) {
+        socket_active.postgres(socket, callback, 'stop');
+    });
+
+    socket.on('start_redis', function (msg, callback) {
+        socket_active.redis(socket, callback, 'start');
+    });
+
+    socket.on('stop_redis', function (msg, callback) {
+        socket_active.redis(socket, callback, 'stop');
+    });
+
+    socket.on('start_nginx', function (msg, callback) {
+        socket_active.nginx(socket, callback, 'start');
+    });
+
+    socket.on('stop_nginx', function (msg, callback) {
+        socket_active.nginx(socket, callback, 'stop');
     });
 });
 
@@ -113,5 +138,9 @@ function onListening() {
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    debug('Listening on ' + bind);
+    //debug('Listening on ' + bind);
+
+    console.log('Application started on port ' + addr.port);
+
+    console.log('Open your web browser and login this page with your master password: ' + _ipAddress + ':' + addr.port);
 }

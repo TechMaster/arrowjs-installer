@@ -3,38 +3,30 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
 var nunjucks = require('nunjucks');
 var child_process = require('child_process');
 
 var index = require('./routes/index');
-var postgres = require('./routes/postgres');
+var websites = require('./routes/websites');
+var services = require('./routes/services');
+var nginx = require('./routes/nginx');
 
 var app = express();
 
-// Get OS ID
-//global._osId = null;
-//child_process.exec('./shell_scripts/get_os_id.sh', function (err, stdout, stderr) {
-//    if (stdout) {
-//        console.log(stdout);
-//        global._osId = stdout;
-//    }
-//});
-
-// Get OS Architecture
-global._osArchitecture = '32';
-child_process.exec('uname -m | grep 64', function (err, stdout, stderr) {
-    if (stdout) {
-        global._osArchitecture = '64';
-    }
-});
-
 // Global variables
+global._osId = child_process.execSync('./shell_scripts/os/get_os_id.sh').toString().split('-')[0];
+global._osVersion = child_process.execSync('./shell_scripts/os/get_os_id.sh').toString().split('-')[1];
+global._ipAddress = child_process.execSync('./shell_scripts/os/get_ip_address.sh ' + _osId + ' ' + _osVersion).toString();
 global._installingPostgres = false;
 global._installingRedis = false;
 global._installingNginx = false;
 global._installingPm2 = false;
-global._redisPath = '~/redis-3.0.1';    // Reference to install_redis.sh
+global._installedPostgres = false;
+global._installedRedis = false;
+global._installedNginx = false;
+global._installedPm2 = false;
 
 // View engine setup
 app.set('view engine', 'html');
@@ -49,10 +41,17 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(session({
+    secret: 'freeskyteamdottechmasterdotvn',
+    resave: false,
+    saveUninitialized: true
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/postgres', postgres);
+app.use('/websites', websites);
+app.use('/services', services);
+app.use('/nginx', nginx);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
