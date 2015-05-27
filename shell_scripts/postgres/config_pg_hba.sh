@@ -8,6 +8,7 @@ config_path=`./shell_scripts/postgres/get_config_path.sh $os_id $os_version`
 path=`echo $config_path | awk '{print $1}'`
 
 # Change local method to trust
+./shell_scripts/postgres/toggle_active.sh $os_id $os_version stop
 sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  trust/' $path
 
 # Change Postgres user password
@@ -15,10 +16,8 @@ sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  trust/' $path
 psql -U postgres -c "ALTER USER postgres WITH PASSWORD '${postgres_password}'"
 ./shell_scripts/postgres/toggle_active.sh $os_id $os_version stop
 
-# Change local method to md5
-sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  md5/' $path
-
 # Change all method to md5
+sed -i 's/\(local\)\( .* \)\( .* \).*/\1\2  md5/' $path
 sed -i 's/\(^host\)\( .*all.* \)\( .* \)\( .* \)\(.* \).*/\1\2\3\4\ md5/' $path
 
 # Add rules with IP argument
