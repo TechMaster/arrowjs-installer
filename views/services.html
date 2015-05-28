@@ -1,0 +1,183 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+    <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    {% if installedPostgres %}
+        <div class="row">
+            <div class="col-sm-6">
+                <h3>PostgreSQL</h3>
+
+                <p></p>
+
+                {#<a href="/postgres">#}
+                    {#<button type="button" class="btn btn-primary">Configure</button>#}
+                {#</a>#}
+            </div>
+
+            <div class="col-sm-6">
+                <h3>&nbsp;</h3>
+
+                <div>
+                    Status: <span style="font-weight: bold"
+                                  id="postgres-active-status">{% if postgres_active %}Active{% else %}Inactive{% endif %}</span>
+                    <span>&nbsp;&nbsp;&nbsp;</span>
+                    <input type="checkbox" id="toggle-postgres" data-toggle="toggle"
+                           {% if postgres_active %}checked="checked"{% endif %}/>
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+    {% endif %}
+
+    {% if installedRedis %}
+        <div class="row">
+            <div class="col-sm-6">
+                <h3>Redis</h3>
+            </div>
+
+            <div class="col-sm-6">
+                <h3>&nbsp;</h3>
+
+                <div>
+                    Status: <span style="font-weight: bold"
+                                  id="redis-active-status">{% if redis_active %}Active{% else %}Inactive{% endif %}</span>
+                    <span>&nbsp;&nbsp;&nbsp;</span>
+                    <input type="checkbox" id="toggle-redis" data-toggle="toggle"
+                           {% if redis_active %}checked="checked"{% endif %}/>
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+    {% endif %}
+
+    {% if installedNginx %}
+        <div class="row">
+            <div class="col-sm-6">
+                <h3>Nginx</h3>
+
+                <p></p>
+
+                {#<a href="/nginx">#}
+                    {#<button type="button" class="btn btn-primary">Configure</button>#}
+                {#</a>#}
+            </div>
+
+            <div class="col-sm-6">
+                <h3>&nbsp;</h3>
+
+                <div>
+                    Status: <span style="font-weight: bold"
+                                  id="nginx-active-status">{% if nginx_active %}Active{% else %}Inactive{% endif %}</span>
+                    <span>&nbsp;&nbsp;&nbsp;</span>
+                    <input type="checkbox" id="toggle-nginx" data-toggle="toggle"
+                           {% if nginx_active %}checked="checked"{% endif %}/>
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
+    <script type="text/javascript" src="/javascripts/bootstrap-toggle.min.js"></script>
+    <script>
+        var postgres_toggle = $('#toggle-postgres');
+        var postgres_active_status = $('#postgres-active-status');
+
+        var redis_toggle = $('#toggle-redis');
+        var redis_active_status = $('#redis-active-status');
+
+        var nginx_toggle = $('#toggle-nginx');
+        var nginx_active_status = $('#nginx-active-status');
+
+        var pm2_process = $('#pm2-process');
+        var pm2_status = $('#pm2-status');
+
+        var socket = io();
+
+        postgres_toggle.on('change', function () {
+            postgres_toggle.bootstrapToggle('disable');
+
+            if ($(this).is(':checked')) {
+                socket.emit('start_postgres', '', function (result) {
+                    if (result == 'success') {
+                        postgres_active_status.text('Active');
+                    } else {
+                        alert(result);
+                    }
+
+                    postgres_toggle.bootstrapToggle('enable');
+                });
+            } else {
+                socket.emit('stop_postgres', '', function (result) {
+                    if (result == 'success') {
+                        postgres_active_status.text('Inactive');
+                    } else {
+                        alert(result);
+                    }
+
+                    postgres_toggle.bootstrapToggle('enable');
+                });
+            }
+        });
+
+        redis_toggle.on('change', function () {
+            redis_toggle.bootstrapToggle('disable');
+
+            if ($(this).is(':checked')) {
+                socket.emit('start_redis', '', function (result) {
+                    if (result == 'success') {
+                        redis_active_status.text('Active');
+                    } else {
+                        alert(result);
+                    }
+
+                    redis_toggle.bootstrapToggle('enable');
+                });
+            } else {
+                socket.emit('stop_redis', '', function (result) {
+                    if (result == 'success') {
+                        redis_active_status.text('Inactive');
+                    } else {
+                        alert(result);
+                    }
+
+                    redis_toggle.bootstrapToggle('enable');
+                });
+            }
+        });
+
+        nginx_toggle.on('change', function () {
+            nginx_toggle.bootstrapToggle('disable');
+
+            if ($(this).is(':checked')) {
+                socket.emit('start_nginx', '', function (result) {
+                    if (result == 'success') {
+                        nginx_active_status.text('Active');
+                    } else {
+                        alert(result);
+                    }
+
+                    nginx_toggle.bootstrapToggle('enable');
+                });
+            } else {
+                socket.emit('stop_nginx', '', function (result) {
+                    if (result == 'success') {
+                        nginx_active_status.text('Inactive');
+                    } else {
+                        alert(result);
+                    }
+
+                    nginx_toggle.bootstrapToggle('enable');
+                });
+            }
+        });
+    </script>
+{% endblock %}

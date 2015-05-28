@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+    <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <p>&nbsp;</p>
+    <div id="website-list">
+
+    </div>
+
+    <button class="btn btn-primary" data-toggle="modal" data-target="#create-website-modal">Create New Website</button>
+
+    <div class="msg-alert"></div>
+
+    <!-- Create website modal -->
+    <div class="modal fade" id="create-website-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Create new website</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="frm-create-website">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" name="location" id="location" class="form-control"
+                                   style="margin-top: 15px;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Database name</label>
+                            <input type="text" name="database_name" id="database_name" class="form-control"
+                                   style="margin-top: 15px;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Database user (must have privileges access postgres database)</label>
+                            <input type="text" name="database_user" id="database_user" class="form-control"
+                                   style="margin-top: 15px;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" id="password" class="form-control"
+                                   style="margin-top: 15px;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Port to run website</label>
+                            <input type="text" name="running_port" id="project_port" class="form-control"
+                                   style="margin-top: 15px;"/>
+                        </div>
+                    </form>
+
+                    <div id="postgres-status" style="display: none; margin-bottom: 15px; font-size: 18px;"></div>
+
+                    <pre id="create-website-process"
+                         style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="createWebsite()">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres config modal -->
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
+    <script type="text/javascript" src="/javascripts/bootstrap-toggle.min.js"></script>
+    <script>
+        var create_website_process = $('#create-website-process');
+        var create_website_status = $('#create-website-status');
+        var form_create_website = $('#frm-create-website');
+
+        var socket = io();
+
+        socket.on('create_website_process', function (data) {
+            create_website_process.append(data);
+            create_website_process.scrollTop(999999);
+        });
+
+        socket.on('create_website_completed', function (data) {
+            console.log(data);
+            $('#create-website-modal').modal('hide');
+        });
+
+        function createWebsite() {
+            var error = 0;
+            $('#frm-create-website input[type="text"]').each(function(){
+                if($(this).val() == ''){
+                    error++;
+                }
+            });
+
+            if(error){
+                return alert('Missing information to create new website!');
+            }
+
+            create_website_status.text("Creating website... Please do not use the browser refresh or navigate to other page while creating!").css('color', 'blue');
+            create_website_status.css('display', 'block');
+            create_website_process.css('display', 'block');
+            form_create_website.remove();
+            $('#create-website-modal .modal-footer').remove();
+
+            socket.emit('create_website', form_create_website.serializeArray());
+        }
+    </script>
+{% endblock %}

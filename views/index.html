@@ -1,99 +1,506 @@
 {% extends 'layout.html' %}
 
 {% block style %}
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="stylesheets/bootstrap-toggle.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: white;
+            border: none;
+        }
+
+        .btn-success {
+            min-width: 100px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <div>
-        <h3>Server information</h3>
-        <pre>{{ os_info }}</pre>
+    <div class="row">
+        <div class="col-sm-6">
+            <h3>Server information</h3>
+            <div>IP Address: {{ os_info.ip }}</div>
+            <div>Operating system: {{ os_info.os }}</div>
+            <div>Architecture: {{ os_info.arch }}</div>
+            <div>Total Memory: {{ os_info.totalmem }} MB</div>
+            <div>Free Memory: {{ os_info.freemem }} MB</div>
+            <div>CPU: {{ os_info.os_core }} core</div>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>Node information</h3>
+            <div>Node version: {{ node_info.node_version }}</div>
+            <div>Iojs version: {{ node_info.iojs_version }}</div>
+            <div>Npm version: {{ node_info.npm_version }}</div>
+        </div>
     </div>
 
-    <div>
-        <h3>PostgreSQL</h3>
-        <pre>{{ postgres_info.info }}</pre>
+    <hr/>
 
-        {% if postgres.need_install %}
-            <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
-                Install
-            </button>
+    <h3>PostgreSQL (Mandatory)</h3>
 
-            <div id="postgres-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ postgres.info }}</pre>
+            {% if postgres.need_install %}
+            {% else %}
+                Configuration files: <br/>
+                {% if postgres_config_path[0] != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#postgres-hba-modal">{{ postgres_config_path[0] }}</a><br/>
+                {% endif %}
 
-            <pre id="postgres-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <a href="/postgres">
-                <button type="button" class="btn btn-primary">Configure</button>
-            </a>
-
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
-        {% endif %}
-    </div>
-
-    <div>
-        <h3>Redis</h3>
-        <pre>{{ redis.info }}</pre>
-
-        {% if redis.need_install %}
-            <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">Install
-            </button>
-            <div id="redis-status" style="margin-bottom: 15px; font-size: 24px;"></div>
-
-            <pre id="redis-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <input type="checkbox" checked data-toggle="toggle">
-
-            {% if redis_status %}
-                <button type="button" class="btn btn-warning btn-restart-redis">Restart</button>
+                {% if postgres_config_path[1] != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#postgres-psql-modal">{{ postgres_config_path[1] }}</a>
+                {% endif %}
             {% endif %}
-        {% endif %}
+        </div>
+
+        <div class="col-sm-6 btn-ic-postgres">
+            {% if postgres.need_install %}
+                <button type="button" class="btn btn-success btn-install-postgres" onclick="installPostgres(this);">
+                    Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if postgres.need_install %}
+                <div id="postgres-status" style="margin-bottom: 15px; font-size: 20px;"></div>
+
+                <pre id="postgres-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>Nginx</h3>
-        <pre>{{ nginx.info }}</pre>
+    <hr/>
 
-        {% if nginx.need_install %}
-            <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">Install
-            </button>
-            <div id="nginx-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+    <h3>Redis (Mandatory)</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ redis.info }}</pre>
+            {% if redis.need_install %}
+            {% else %}
+                Configuration file:
+                {% if redis_config_path != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#redis-config-modal">{{ redis_config_path }}</a>
+                {% endif %}
+            {% endif %}
+        </div>
 
-            <pre id="nginx-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <a href="/nginx">
-                <button type="button" class="btn btn-primary">Configure</button>
-            </a>
+        <div class="col-sm-6">
+            {% if redis.need_install %}
+                <button type="button" class="btn btn-success btn-install-redis" onclick="installRedis(this);">
+                    Install
+                </button>
+            {% endif %}
+        </div>
 
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
-        {% endif %}
+        <div class="col-sm-12">
+            {% if redis.need_install %}
+                <div id="redis-status" style="margin-bottom: 15px; font-size: 20px;"></div>
+
+                <pre id="redis-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
 
-    <div>
-        <h3>PM2</h3>
-        <pre>{{ pm2.info }}</pre>
+    <hr/>
 
-        {% if pm2.need_install %}
-            <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install</button>
-            <div id="pm2-status" style="margin-bottom: 15px; font-size: 24px;"></div>
+    <h3>Nginx (Optional)</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ nginx.info }}</pre>
+            {% if nginx.need_install %}
+            {% else %}
+                Configuration file:
+                {% if nginx_config_path != 0 %}
+                    <a href="#" data-toggle="modal" data-target="#nginx-config-modal">{{ nginx_config_path }}</a>
+                {% endif %}
+            {% endif %}
+        </div>
 
-            <pre id="pm2-process"
-                 style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-        {% else %}
-            <button type="button" class="btn btn-success disabled">Start</button>
-            <button type="button" class="btn btn-warning disabled">Stop</button>
-        {% endif %}
+        <div class="col-sm-6">
+            {% if nginx.need_install %}
+                <button type="button" class="btn btn-success btn-install-nginx" onclick="installNginx(this);">
+                    Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if nginx.need_install %}
+                <div id="nginx-status" style="margin-bottom: 15px; font-size: 20px;"></div>
+                <pre id="nginx-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
     </div>
+
+    <hr/>
+
+    <h3>PM2 (Optional)</h3>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ pm2.info }}</pre>
+        </div>
+
+        <div class="col-sm-6">
+            {% if pm2.need_install %}
+                <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if pm2.need_install %}
+                <div id="pm2-status" style="margin-bottom: 15px; font-size: 20px;"></div>
+
+                <pre id="pm2-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
+    </div>
+
+    <p>&nbsp;</p>
+
+    <!-- Postgres config modal -->
+    <div class="modal fade" id="postgres-config-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">PostgreSQL first time configuration</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="frm-config-postgres">
+                        <h4>Set password for Postgres user</h4>
+
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" style="width: 60%;"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm password</label>
+                            <input type="password" name="confirm_password" class="form-control" style="width: 60%;"/>
+                        </div>
+
+                        <hr/>
+
+                        <h4>Host-based authentication (pg_hba.conf)</h4>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="address" value="all"/>
+                                Allow any user connect to Postgres
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="address" value="custom"/>
+                                Allow users from the addresses below connect to Postgres
+                                <input type="text" name="address2" class="form-control"
+                                       placeholder="Example: 192.168.1.1/32" style="margin-top: 15px; width: 60%;"
+                                       disabled="disabled"/>
+                            </label>
+                        </div>
+
+                        <hr/>
+
+                        <h4>Listening Address (postgresql.conf)</h4>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="listen_addresses" value="*"/>
+                                Allow Remote connect
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">
+                                <input type="radio" name="listen_addresses" value="localhost" required="required"/>
+                                Allow only Local connect
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="savePostgresConfiguration()">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres config modal -->
+
+    <!-- Postgres pg_hba.conf modal -->
+    <div class="modal fade" id="postgres-hba-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview pg_hba.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="min-height: 250px; padding: 15px; background-color: #000000; color: #5cb85c;">{{ postgres_config_hba }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres pg_hba.conf modal -->
+
+    <!-- Postgres postgresql.conf modal -->
+    <div class="modal fade" id="postgres-psql-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview postgresql.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ postgres_config_pg }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Postgres postgresql.conf modal -->
+
+    <!-- Redis config modal -->
+    <div class="modal fade" id="redis-config-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview redis.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ redis_config_content }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Redis config modal -->
+
+    <!-- Nginx config modal -->
+    <div class="modal fade" id="nginx-config-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Preview nginx.conf</h4>
+                </div>
+
+                <div class="modal-body">
+                    <pre style="padding: 15px; background-color: #000000; color: #5cb85c;">{{ nginx_config_content }}</pre>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Nginx config modal -->
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript" src="/javascripts/pace.min.js"></script>
     <script type="text/javascript" src="/javascripts/socketio.min.js"></script>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
-    <script type="text/javascript" src="/javascripts/main.js"></script>
+    <script>
+        var postgres_process = $('#postgres-process');
+        var postgres_status = $('#postgres-status');
+        var postgres_button = $('.btn-ic-postgres');
+
+        var redis_process = $('#redis-process');
+        var redis_status = $('#redis-status');
+
+        var nginx_process = $('#nginx-process');
+        var nginx_status = $('#nginx-status');
+
+        var pm2_process = $('#pm2-process');
+        var pm2_status = $('#pm2-status');
+
+        var socket = io();
+
+        socket.on('checking', function (data) {
+            if (data.postgres) {
+                $('.btn-install-postgres').remove();
+                postgres_status.text("Postgres is installing ...").css('color', 'blue');
+            }
+
+            if (data.redis) {
+                $('.btn-install-redis').remove();
+                redis_status.text("Redis is installing ...").css('color', 'blue');
+            }
+
+            if (data.nginx) {
+                $('.btn-install-nginx').remove();
+                nginx_status.text("Postgres is installing ...").css('color', 'blue');
+            }
+
+            if (data.pm2) {
+                $('.btn-install-pm2').remove();
+                pm2_status.text("Postgres is installing ...").css('color', 'blue');
+            }
+        });
+
+        socket.on('install_postgres_process', function (data) {
+            postgres_process.append(data);
+            postgres_process.scrollTop(999999);
+        });
+
+        socket.on('install_postgres_completed', function (data) {
+            postgres_status.text('Postgres installation has completed').css('color', 'green');
+            postgres_button.html('<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postgres-config-modal">First time config</button>');
+        });
+
+        socket.on('install_redis_process', function (data) {
+            redis_process.append(data);
+            redis_process.scrollTop(999999);
+        });
+
+        socket.on('install_redis_completed', function (data) {
+            redis_status.text('Redis installation has completed').css('color', 'green');
+        });
+
+        socket.on('install_nginx_process', function (data) {
+            nginx_process.append(data);
+            nginx_process.scrollTop(999999);
+        });
+
+        socket.on('install_nginx_completed', function (data) {
+            nginx_status.text('Nginx installation has completed').css('color', 'green');
+        });
+
+        socket.on('install_pm2_process', function (data) {
+            pm2_process.append(data);
+            pm2_process.scrollTop(999999);
+        });
+
+        socket.on('install_pm2_completed', function (data) {
+            pm2_status.text('PM2 installation has completed').css('color', 'green');
+        });
+
+        function installPostgres(button) {
+            $(button).remove();
+            postgres_status.text("Installing Postgres... Please do not use the browser refresh or navigate to other page while Installing!").css('color', 'blue');
+            postgres_process.css('display', 'block');
+
+            socket.emit('install_postgres', '');
+        }
+
+        function installRedis(button) {
+            $(button).remove();
+            redis_status.text("Installing Redis... Please do not use the browser refresh or navigate to other page while Installing!").css('color', 'blue');
+            redis_process.css('display', 'block');
+
+            socket.emit('install_redis', '');
+        }
+
+        function installNginx(button) {
+            $(button).remove();
+            nginx_status.text("Installing Nginx... Please do not use the browser refresh or navigate to other page while Installing!").css('color', 'blue');
+            nginx_process.css('display', 'block');
+
+            socket.emit('install_nginx', '');
+        }
+
+        function installPm2(button) {
+            $(button).remove();
+            pm2_status.text("Installing Pm2... Please do not use the browser refresh or navigate to other page while Installing!").css('color', 'blue');
+            pm2_process.css('display', 'block');
+
+            socket.emit('install_pm2', '');
+        }
+
+        function savePostgresConfiguration(button) {
+            // Validate form
+            var err_msg = '';
+            var address = $('input[name="address"]');
+            var listen_addresses = $('input[name="listen_addresses"]');
+            var password = $('input[name="password"]');
+            var confirm_password = $('input[name="confirm_password"]');
+
+            if (password.val() == ''){
+                err_msg += "Password is required.\n";
+            }else if(password.val() != confirm_password.val()){
+                err_msg += "Password and confirm password does not match.\n";
+            }
+
+            if (!address.is(':checked')) {
+                err_msg += "Host-based authentication is required.\n";
+            } else if ($(address[1]).is(':checked') && $('input[name="address2"]').val() == "") {
+                err_msg += "Host-based authentication is required (Missing IP addresses).\n";
+            }
+
+            if (!listen_addresses.is(':checked')) {
+                err_msg += "Listening Address is required.\n";
+            }
+
+            if (err_msg) {
+                alert(err_msg);
+                return false;
+            }
+
+            // Save data by ajax post
+            $.ajax({
+                url: '/config-postgres',
+                type: 'post',
+                data: $('#frm-config-postgres').serialize()
+            }).done(function (result, status) {
+                if (result == 'success'){
+                    postgres_button.html('<div class="alert-success">Config Postgres for first time successfully</div>');
+                }else{
+                    var html = '<div class="alert-warning">'+result+'</div>' +
+                            '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postgres-config-modal">' +
+                            'First time config' +
+                            '</button>';
+                    postgres_button.html(html);
+                }
+
+                $('#postgres-config-modal').modal('hide');
+            }).fail(function (error, status) {
+                alert(error, status);
+            });
+        }
+
+        $('input[name="address"]').on('click', function () {
+            if ($(this).val() == "custom") {
+                $('input[name="address2"]').removeAttr('disabled');
+            } else {
+                $('input[name="address2"]').attr('disabled', 'disabled');
+            }
+        });
+    </script>
 {% endblock %}
