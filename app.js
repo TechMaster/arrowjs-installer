@@ -11,7 +11,6 @@ var child_process = require('child_process');
 var index = require('./routes/index');
 var websites = require('./routes/websites');
 var services = require('./routes/services');
-var nginx = require('./routes/nginx');
 
 var app = express();
 
@@ -52,7 +51,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/websites', websites);
 app.use('/services', services);
-app.use('/nginx', nginx);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

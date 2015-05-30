@@ -370,7 +370,7 @@ router.post('/login', function (req, res) {
     var init_password = "";
 
     try {
-        init_password = fs.readFileSync('init_password').toString().trim();
+        init_password = fs.readFileSync('init_password.arrowjs').toString().trim();
     } catch (e) {
         res.locals.msg = '<div class="alert-warning">Cannot get Init password</div>';
         return res.render('login');

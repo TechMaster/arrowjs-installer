@@ -18,6 +18,7 @@
     <div class="row">
         <div class="col-sm-6">
             <h3>Server information</h3>
+
             <div>IP Address: {{ os_info.ip }}</div>
             <div>Operating system: {{ os_info.os }}</div>
             <div>Architecture: {{ os_info.arch }}</div>
@@ -28,6 +29,7 @@
 
         <div class="col-sm-6">
             <h3>Node information</h3>
+
             <div>Node version: {{ node_info.node_version }}</div>
             <div>Iojs version: {{ node_info.iojs_version }}</div>
             <div>Npm version: {{ node_info.npm_version }}</div>
@@ -45,7 +47,8 @@
             {% else %}
                 Configuration files: <br/>
                 {% if postgres_config_path[0] != 0 %}
-                    <a href="#" data-toggle="modal" data-target="#postgres-hba-modal">{{ postgres_config_path[0] }}</a><br/>
+                    <a href="#" data-toggle="modal" data-target="#postgres-hba-modal">{{ postgres_config_path[0] }}</a>
+                    <br/>
                 {% endif %}
 
                 {% if postgres_config_path[1] != 0 %}
@@ -107,6 +110,31 @@
 
     <hr/>
 
+    <h3>PM2 (Mandatory)</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <pre>{{ pm2.info }}</pre>
+        </div>
+
+        <div class="col-sm-6">
+            {% if pm2.need_install %}
+                <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="col-sm-12">
+            {% if pm2.need_install %}
+                <div id="pm2-status" style="margin-bottom: 15px; font-size: 20px;"></div>
+
+                <pre id="pm2-process"
+                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr/>
+
     <h3>Nginx (Optional)</h3>
     <div class="row">
         <div class="col-sm-6">
@@ -132,32 +160,6 @@
             {% if nginx.need_install %}
                 <div id="nginx-status" style="margin-bottom: 15px; font-size: 20px;"></div>
                 <pre id="nginx-process"
-                     style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
-            {% endif %}
-        </div>
-    </div>
-
-    <hr/>
-
-    <h3>PM2 (Optional)</h3>
-
-    <div class="row">
-        <div class="col-sm-6">
-            <pre>{{ pm2.info }}</pre>
-        </div>
-
-        <div class="col-sm-6">
-            {% if pm2.need_install %}
-                <button type="button" class="btn btn-success btn-install-pm2" onclick="installPm2(this);">Install
-                </button>
-            {% endif %}
-        </div>
-
-        <div class="col-sm-12">
-            {% if pm2.need_install %}
-                <div id="pm2-status" style="margin-bottom: 15px; font-size: 20px;"></div>
-
-                <pre id="pm2-process"
                      style="display: none; height: 300px; overflow: scroll; padding: 15px; background-color: #000000; color: #5cb85c;"></pre>
             {% endif %}
         </div>
@@ -452,9 +454,9 @@
             var password = $('input[name="password"]');
             var confirm_password = $('input[name="confirm_password"]');
 
-            if (password.val() == ''){
+            if (password.val() == '') {
                 err_msg += "Password is required.\n";
-            }else if(password.val() != confirm_password.val()){
+            } else if (password.val() != confirm_password.val()) {
                 err_msg += "Password and confirm password does not match.\n";
             }
 
@@ -479,10 +481,10 @@
                 type: 'post',
                 data: $('#frm-config-postgres').serialize()
             }).done(function (result, status) {
-                if (result == 'success'){
+                if (result == 'success') {
                     postgres_button.html('<div class="alert-success">Config Postgres for first time successfully</div>');
-                }else{
-                    var html = '<div class="alert-warning">'+result+'</div>' +
+                } else {
+                    var html = '<div class="alert-warning">' + result + '</div>' +
                             '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postgres-config-modal">' +
                             'First time config' +
                             '</button>';
@@ -491,7 +493,7 @@
 
                 $('#postgres-config-modal').modal('hide');
             }).fail(function (error, status) {
-                alert(error, status);
+                alert("ERROR!", error, status);
             });
         }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Set running port to Web installer same as file config
 running_port=3000
 
 # Grant execution permission for shell_scripts directory
@@ -135,6 +136,11 @@ fi
 echo "Install node modules to run Web installer"
 npm install
 
+# Create file list_websites if not exists
+if [ ! -f 'websites/list_websites.arrowjs' ]; then
+    echo "[]" >> websites/list_websites.arrowjs
+fi
+
 # Get init password for web installer
 function initPassword {
     echo -n "Enter master password (this one is required to login Web installer): "
@@ -153,7 +159,7 @@ do
 done
 
 # Hash password and store to file
-echo -n $password | md5sum | awk '{print $1}' > init_password
+echo -n $password | md5sum | awk '{print $1}' > init_password.arrowjs
 echo ""
 echo "Init password was created successfully"
 

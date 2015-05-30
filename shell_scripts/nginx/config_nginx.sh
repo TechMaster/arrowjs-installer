@@ -10,6 +10,12 @@ if [ -f "/etc/nginx/conf.d/${file_name}" ]; then
     return
 fi
 
+check_active=`./shell_scripts/nginx/check_active.sh $os_id $os_version`
+if [ -z "$check_active" ]; then
+    echo "Start Nginx service"
+    ./shell_scripts/nginx/toggle_active.sh $os_id $os_version start
+fi
+
 printf "# Default config by arrowjs.io
 upstream ${upstream} {
     server 127.0.0.1:${listen_port};
@@ -37,6 +43,8 @@ server {
 " > /etc/nginx/conf.d/${file_name}
 
 chcon -R -t httpd_sys_rw_content_t ${root_path}
+
+./shell_scripts/nginx/toggle_active.sh $os_id $os_version restart
 
 
 
