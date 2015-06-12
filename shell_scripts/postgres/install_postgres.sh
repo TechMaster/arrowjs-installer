@@ -45,7 +45,7 @@ function installPostgresCentOS6 {
     fi
 
     yum -y update
-    yum -y install postgresql94-server postgresql94-contrib
+    yum install -y postgresql-server postgresql-contrib
 
     echo "Initialize database for first time use"
     service postgresql-9.4 initdb
@@ -66,32 +66,12 @@ function installPostgresCentOS7 {
 
     yum -y update
 
-    if ! yum list installed | grep postgresql94-server
-    then
-        echo "Install postgresql94-server"
-        yum -y install postgresql94-server
-    else
-        echo "postgresql94-server is already installed. Skip"
-    fi
-
-    if ! yum list installed | grep postgresql94
-    then
-        echo "Install postgresql94"
-        yum -y install postgresql94
-    else
-        echo "postgresql94 is already installed. Skip"
-    fi
-
-    if ! yum list installed | grep postgresql94-contrib
-    then
-        echo "Install postgresql94-contrib"
-        yum -y install postgresql94-contrib
-    else
-        echo "postgresql94-contrib is already installed. Skip"
-    fi
+    yum install -y postgresql-server postgresql-contrib
 
     echo "Initialize database for first time use"
     /usr/pgsql-9.4/bin/postgresql94-setup initdb
+
+    systemctl enable postgresql-9.4.service
 }
 
 function installPostgresCentOS {
@@ -109,23 +89,21 @@ function installPostgresCentOS {
     esac
 }
 
-function checkFedoraBaseRepo {
+function installPostgresFedora {
     # Exclude old repo of Postgres on Fedora
     sed -i '/.*exclude=postgresql\*.*/d' /etc/yum.repos.d/fedora.repo
     sed -i '/\[fedora\]/a exclude=postgresql\*' /etc/yum.repos.d/fedora.repo
     sed -i '/.*exclude=postgresql\*.*/d' /etc/yum.repos.d/fedora-updates.repo
     sed -i '/\[updates\]/a exclude=postgresql\*' /etc/yum.repos.d/fedora-updates.repo
-}
-
-function installPostgresFedora {
-    checkFedoraBaseRepo
 
     rpm -Uvh http://yum.postgresql.org/9.4/fedora/fedora-21-x86_64/pgdg-fedora94-9.4-2.noarch.rpm
     yum -y update
-    yum -y install postgresql94-server postgresql94-contrib
+    yum -y install postgresql-server postgresql-contrib
 
     echo "Initialize database for first time use"
     /usr/pgsql-9.4/bin/postgresql94-setup initdb
+
+    chkconfig postgresql-9.4 on
 }
 
 function installPostgresDebian {

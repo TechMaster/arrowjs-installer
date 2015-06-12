@@ -37,24 +37,21 @@ function activeNginxDebian {
     service nginx $toggle
 }
 
-function activeNginx {
-    case "$os_id" in
-        ubuntu)
-            activeNginxUbuntu
-            ;;
-        centos)
-            activeNginxCenOS
-            ;;
-        fedora)
-            activeNginxFedora
-            ;;
-        debian)
-            activeNginxDebian
-            ;;
-    esac
-}
-
-activeNginx
+# Active Nginx
+case "$os_id" in
+    ubuntu)
+        activeNginxUbuntu
+        ;;
+    centos)
+        activeNginxCenOS
+        ;;
+    fedora)
+        activeNginxFedora
+        ;;
+    debian)
+        activeNginxDebian
+        ;;
+esac
 
 
 

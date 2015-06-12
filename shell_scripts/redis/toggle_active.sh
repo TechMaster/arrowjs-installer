@@ -37,21 +37,18 @@ function activeRedisDebian {
     service redis-server $toggle
 }
 
-function activeRedis {
-    case "$os_id" in
-        ubuntu)
-            activeRedisUbuntu
-            ;;
-        centos)
-            activeRedisCenOS
-            ;;
-        fedora)
-            activeRedisFedora
-            ;;
-        debian)
-            activeRedisDebian
-            ;;
-    esac
-}
-
-activeRedis
+# Active Redis
+case "$os_id" in
+    ubuntu)
+        activeRedisUbuntu
+        ;;
+    centos)
+        activeRedisCenOS
+        ;;
+    fedora)
+        activeRedisFedora
+        ;;
+    debian)
+        activeRedisDebian
+        ;;
+esac

@@ -42,24 +42,21 @@ function activePostgresDebian {
     service postgresql $toggle
 }
 
-function activePostgres {
-    case "$os_id" in
-        ubuntu)
-            activePostgresUbuntu
-            ;;
-        centos)
-            activePostgresCenOS
-            ;;
-        fedora)
-            activePostgresFedora
-            ;;
-        debian)
-            activePostgresDebian
-            ;;
-    esac
-}
-
-activePostgres
+# Active Postgres
+case "$os_id" in
+    ubuntu)
+        activePostgresUbuntu
+        ;;
+    centos)
+         activePostgresCenOS
+        ;;
+    fedora)
+        activePostgresFedora
+        ;;
+    debian)
+        activePostgresDebian
+        ;;
+esac
 
 
 

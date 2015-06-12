@@ -1,9 +1,11 @@
 #!/bin/bash
-file_name=$1
-server_name=$2
-listen_port=$3
-root_path=$4
-upstream=$5
+os_id=$1
+os_version=$2
+file_name=$3
+server_name=$4
+listen_port=$5
+root_path=$6
+upstream=$7
 
 if [ -f "/etc/nginx/conf.d/${file_name}" ]; then
     echo -n "exists"
@@ -42,9 +44,11 @@ server {
 }
 " > /etc/nginx/conf.d/${file_name}
 
-chcon -R -t httpd_sys_rw_content_t ${root_path}
+# Add port to SELinux in CentOS7
+if [[ "$os_id" == "centos" || "$os_id" == "fedora" ]]; then
+    yum install policycoreutils-python -y
+    semanage port --add --type http_port_t --proto tcp $listen_port
+    chcon -R -t httpd_sys_rw_content_t $root_path
+fi
 
 ./shell_scripts/nginx/toggle_active.sh $os_id $os_version restart
-
-
-

@@ -13,6 +13,9 @@
 
 {% block content %}
     <p>&nbsp;</p>
+
+    <div id="alert-msg"></div>
+
     <div id="website-list">
         {% if list_websites and list_websites|length %}
             {% for website in list_websites %}
@@ -21,18 +24,11 @@
                         <div class="col-sm-6">
                             <div>Location: {{ website.location }}</div>
                             <div>Database: {{ website.database_name }}</div>
-                            <div>Listen port: {{ website.listen_port }}</div>
-                        </div>
-
-                        <div class="col-sm-6">
-                            {#{% if installedNginx %}#}
-                            {#<button type="button" class="btn btn-primary" data-toggle="modal"#}
-                            {#onclick="openNginxConfigModal(this)">Use Nginx#}
-                            {#</button>#}
-                            {#<div class="config-nginx-msg"></div>#}
-                            {#{% else %}#}
-                            {#link to file config#}
-                            {#{% endif %}#}
+                            {% if website.use_nginx == 'yes' %}
+                                <div>Listen by Nginx</div>
+                            {% else %}
+                                <div>Listen port: {{ website.listen_port }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -58,7 +54,7 @@
                 <div class="modal-body">
                     <form id="frm-create-website">
                         <div class="form-group">
-                            <label for="location">Location</label>
+                            <label for="location">Location (project folder in hard disk, do not place in /root folder)</label>
                             <input type="text" name="location" id="location" class="form-control"
                                    style="margin-top: 15px;"/>
                         </div>
@@ -111,9 +107,9 @@
                                 <input type="text" name="server_name" id="server_name" class="form-control"/>
                             </div>
 
-                            <input type="hidden" name="website_listen_port" id="website_listen_port" />
+                            <input type="hidden" name="website_listen_port" id="website_listen_port"/>
 
-                            <input type="hidden" name="root_path" id="root_path" />
+                            <input type="hidden" name="root_path" id="root_path"/>
 
                             <div class="form-group">
                                 <label class="control-label" for="upstream">Upstream</label>
@@ -159,7 +155,7 @@
         });
 
         socket.on('create_website_completed', function (data) {
-            if(use_nginx.is(':checked')){
+            if (use_nginx.is(':checked')) {
                 // Config Nginx
                 $.ajax({
                     url: '/websites/nginx',
@@ -167,8 +163,8 @@
                     data: form_config_nginx.serialize()
                 }).done(function (result, status) {
                     if (result == 'success') {
-                        modal_footer.html('<button type="button" class="btn btn-default" onclick="updateWebsites()">Update & Close</button>');
-                    } else if (result == 'exists'){
+                        modal_footer.html('<button type="button" class="btn btn-default" onclick="updateWebsites(1)">Update & Close</button>');
+                    } else if (result == 'exists') {
                         alert('File config already exists');
                     } else {
                         alert('Config Nginx error');
@@ -176,9 +172,9 @@
                 }).fail(function (error, status) {
                     alert("Error connect to server");
                 });
+            } else {
+                modal_footer.html('<button type="button" class="btn btn-default" onclick="updateWebsites(0)">Update & Close</button>');
             }
-
-            //todo: reset form
         });
 
         use_nginx.on('click', function () {
@@ -189,11 +185,11 @@
             }
         });
 
-        $('#listen_port').on('change', function(){
+        $('#listen_port').on('change', function () {
             $('#website_listen_port').val($(this).val());
         });
 
-        $('#location').on('change', function(){
+        $('#location').on('change', function () {
             $('#root_path').val($(this).val() + '/public');
         });
 
@@ -221,13 +217,14 @@
             create_website_status.text("Creating website... Please do not use the browser refresh or navigate to other page while creating!").css('color', 'blue');
             create_website_status.css('display', 'block');
             create_website_process.css('display', 'block');
-            form_create_website.remove();
+            form_create_website.hide();
+            form_config_nginx.hide();
             modal_footer.children().remove();
 
             socket.emit('create_website', form_create_website.serializeArray());
         }
 
-        function updateWebsites() {
+        function updateWebsites(use_nignx) {
             $.ajax({
                 url: '/websites/update',
                 type: 'post',
@@ -237,25 +234,41 @@
                     var html = '<div class="website-item"><div class="row">' +
                             '<div class="col-sm-6">' +
                             '<div>Location: ' + $('#location').val() + '</div>' +
-                            '<div>Database: ' + $('#database_name').val() + '</div>' +
-                            '<div>Listen port: ' + $('#listen_port').val() + '</div>' +
-                            '</div>' +
-                            '<div class="col-sm-6">';
-                    {% if installedNginx %}
-                    html += '<button type="button" class="btn btn-primary" data-toggle="modal"' +
-                    'onclick="openNginxConfigModal(this)>Use Nginx</button>' +
-                    '<div class="config-nginx-msg"></div>';
-                    {% else %}
-                    html += 'link to file config';
-                    {% endif %}
+                            '<div>Database: ' + $('#database_name').val() + '</div>';
+
+                    if (use_nignx){
+                        html += '<div>Listen by Nginx</div>';
+                    }else{
+                        html += '<div>Listen port: ' + $('#listen_port').val() + '</div>';
+                    }
+
                     html += '</div></div></div>';
 
-                    $('#list-websites').append(html);
+                    $('#website-list').append(html);
                 } else {
                     alert('Update website information error');
                 }
 
+                // Close modal
                 $('#create-website-modal').modal('hide');
+
+                // Reset form
+                form_create_website.show();
+                form_create_website.find('input[type="text"]').val('');
+                form_config_nginx.find('input[type="text"]').val('');
+                $('#use_nginx').prop('checked', false);
+
+                create_website_status.text('');
+                create_website_status.css('display', 'none');
+                create_website_process.html('');
+                create_website_process.css('display', 'none');
+
+                var footer = '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+                        '<button type="button" class="btn btn-primary" onclick="createWebsite()">Save changes</button>';
+                modal_footer.html(footer);
+
+                // Alert
+                $('#alert-msg').html('<div class="alert-success">New website was created</div>');
             }).fail(function (error, status) {
                 alert("ERROR!", error, status);
             });

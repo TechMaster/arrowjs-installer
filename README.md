@@ -9,7 +9,7 @@ Go to the directory which you want to install application
 Run these commands with user root:
 
 ```
-git clone https://github.com/quanghuy90hn/arrowjs-installer
+git clone https://github.com/TechMaster/arrowjs-installer
 cd arrowjs-installer
 ./install
 

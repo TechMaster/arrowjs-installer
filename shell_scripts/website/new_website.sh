@@ -47,7 +47,7 @@ fi
 # Clone source code form github to websites directory and move to location
 cd websites
 echo "Clone source code form Github"
-#git clone https://github.com/quanghuy90hn/arrowjs-core.git
+#todo: git clone https://github.com/quanghuy90hn/arrowjs-core.git
 mv arrowjs-core ${project_name}
 rm -rf $location
 mv $project_name $project_path
@@ -97,4 +97,18 @@ sed -i "s/password: *'secret',/password: '${password}',/" production.js
 echo "Start website with PM2"
 cd ../..
 chmod -R 755 public
+case "$os_id" in
+    ubuntu)
+        source ~/.profile
+        ;;
+    centos)
+        source ~/.bash_profile
+        ;;
+    fedora)
+        source ~/.bash_profile
+        ;;
+    debian)
+        source ~/.profile
+        ;;
+esac
 pm2 start server.js --name "${project_name}" -i 0

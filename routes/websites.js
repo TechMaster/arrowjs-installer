@@ -70,7 +70,7 @@ router.post('/nginx', function (req, res) {
 
     var data = req.body;
 
-    child_process.exec('./shell_scripts/nginx/config_nginx.sh ' + data.file_name + ' ' + data.server_name + ' ' + data.website_listen_port + ' ' + data.root_path + ' ' + data.upstream, function (err, stdout, stderr) {
+    child_process.exec('./shell_scripts/nginx/config_nginx.sh ' + _osId + ' ' + _osVersion + ' ' + data.file_name + ' ' + data.server_name + ' ' + data.website_listen_port + ' ' + data.root_path + ' ' + data.upstream, function (err, stdout, stderr) {
         if (err) {
             res.send("ERROR: " + err);
         } else {
