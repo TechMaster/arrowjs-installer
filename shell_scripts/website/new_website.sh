@@ -12,17 +12,17 @@ use_nginx=$8
 project_path=${location%/*}
 project_name=${location##/*/}
 
-# Check directory exists
-if [ ! -d "$project_path" ]; then
-    echo "Directory is not exist!"
-    exit
-fi
-
-# Check directory empty
-if [[ -d "$location" && "$(ls -A $location)" ]]; then
-    echo "Directory is not empty!"
-    exit
-fi
+## Check directory exists
+#if [ ! -d "$project_path" ]; then
+#    echo "Directory is not exist!"
+#    exit 127
+#fi
+#
+## Check directory empty
+#if [[ -d "$location" && "$(ls -A $location)" ]]; then
+#    echo "Directory is not empty!"
+#    exit 128
+#fi
 
 # Open port for project if not use Nginx
 if [ -z "$use_nginx" ]; then

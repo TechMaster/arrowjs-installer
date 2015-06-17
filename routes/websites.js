@@ -34,6 +34,26 @@ router.get('/', function (req, res) {
     res.render('websites');
 });
 
+/* Ajax POST validate */
+router.post('/validate', function (req, res) {
+    // Check login
+    if (!req.session.auth) {
+        return res.redirect('/login');
+    }
+
+    var data = req.body;
+
+    var use_nginx = data.use_nginx ? 1 : 0;
+
+    child_process.exec('./shell_scripts/website/validate.sh ' + data.location + ' ' + use_nginx + ' ' + data.file_name, function (err, stdout, stderr) {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send('success');
+        }
+    });
+});
+
 /* Ajax POST update website */
 router.post('/update', function (req, res) {
     // Check login

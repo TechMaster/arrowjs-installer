@@ -52,42 +52,45 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="frm-create-website">
+                    <form method="post" id="frm-create-website">
                         <div class="form-group">
-                            <label for="location">Location (project folder in hard disk, do not place in /root folder)</label>
+                            <label for="location">Location (project folder in hard disk, do not place in /root
+                                folder)</label>
                             <input type="text" name="location" id="location" class="form-control"
-                                   style="margin-top: 15px;"/>
+                                   style="margin-top: 15px;" required="required"/>
                         </div>
 
                         <div class="form-group">
                             <label for="database_name">Database name</label>
                             <input type="text" name="database_name" id="database_name" class="form-control"
-                                   style="margin-top: 15px;"/>
+                                   style="margin-top: 15px;" required="required"/>
                         </div>
 
                         <div class="form-group">
                             <label for="database_user">Database user (must have privileges access postgres
                                 database)</label>
                             <input type="text" name="database_user" id="database_user" class="form-control"
-                                   style="margin-top: 15px;"/>
+                                   style="margin-top: 15px;" required="required"/>
                         </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
                             <input type="password" name="password" id="password" class="form-control"
-                                   style="margin-top: 15px;"/>
+                                   style="margin-top: 15px;" required="required"/>
                         </div>
 
                         <div class="form-group">
                             <label for="listen_port">Listen port</label>
                             <input type="text" name="listen_port" id="listen_port" class="form-control"
-                                   style="margin-top: 15px;"/>
+                                   style="margin-top: 15px;" required="required"/>
                         </div>
+
+                        <input type="submit" id="btn-submit-create-website" style="display: none;"/>
 
                         {% if installedNginx %}
                             <div class="form-group">
                                 <label>
-                                    <input type="checkbox" name="use_nginx" id="use_nginx" value="yes"
+                                    <input type="checkbox" name="use_nginx" id="use_nginx" value="1"
                                            style="margin-top: 15px;"/>
                                     Using Nginx to serve static files
                                 </label>
@@ -96,15 +99,17 @@
                     </form>
 
                     {% if installedNginx %}
-                        <form id="frm-config-nginx" style="display: none">
+                        <form method="post" id="frm-config-nginx" style="display: none">
                             <div class="form-group">
                                 <label class="control-label" for="file_name">File name (*.conf)</label>
-                                <input type="text" name="file_name" id="file_name" class="form-control"/>
+                                <input type="text" name="file_name" id="file_name" class="form-control"
+                                       required="required"/>
                             </div>
 
                             <div class="form-group">
                                 <label class="control-label" for="server_name">Server name</label>
-                                <input type="text" name="server_name" id="server_name" class="form-control"/>
+                                <input type="text" name="server_name" id="server_name" class="form-control"
+                                       required="required"/>
                             </div>
 
                             <input type="hidden" name="website_listen_port" id="website_listen_port"/>
@@ -113,8 +118,11 @@
 
                             <div class="form-group">
                                 <label class="control-label" for="upstream">Upstream</label>
-                                <input type="text" name="upstream" id="upstream" class="form-control"/>
+                                <input type="text" name="upstream" id="upstream" class="form-control"
+                                       required="required"/>
                             </div>
+
+                            <input type="submit" id="btn-submit-config-nginx" style="display: none;"/>
                         </form>
                     {% endif %}
 
@@ -154,7 +162,21 @@
             create_website_process.scrollTop(999999);
         });
 
-        socket.on('create_website_completed', function (data) {
+        socket.on('create_website_completed', function (code) {
+//            if(code == '127' || code == '128'){
+//                // Reset form
+//                form_create_website.show();
+//                $('#use_nginx').prop('checked', false);
+//
+//                resetStatus();
+//
+//                if (code == '127'){
+//                    return alert('Location is not valid! Directory is not exists');
+//                }else{
+//                    return alert('Location is not valid! Directory is not empty');
+//                }
+//            }
+
             if (use_nginx.is(':checked')) {
                 // Config Nginx
                 $.ajax({
@@ -164,8 +186,6 @@
                 }).done(function (result, status) {
                     if (result == 'success') {
                         modal_footer.html('<button type="button" class="btn btn-default" onclick="updateWebsites(1)">Update & Close</button>');
-                    } else if (result == 'exists') {
-                        alert('File config already exists');
                     } else {
                         alert('Config Nginx error');
                     }
@@ -193,35 +213,77 @@
             $('#root_path').val($(this).val() + '/public');
         });
 
+        form_create_website.on('submit', function (e) {
+            e.preventDefault();
+        });
+
+        form_config_nginx.on('submit', function (e) {
+            e.preventDefault();
+        });
+
+        function resetStatus(){
+            create_website_status.text('');
+            create_website_status.css('display', 'none');
+            create_website_process.html('');
+            create_website_process.css('display', 'none');
+
+            var footer = '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+                    '<button type="button" class="btn btn-primary" onclick="createWebsite()">Save changes</button>';
+            modal_footer.html(footer);
+        }
+
         function createWebsite() {
             // Validate form
+            $('#btn-submit-create-website').trigger('click');
+
             var error = 0;
             $('#frm-create-website input[type="text"]').each(function () {
-                if ($(this).val() == '') {
+                if (!document.getElementById($(this).attr('id')).validity.valid) {
                     error++;
                 }
             });
 
             if (use_nginx.is(':checked')) {
+                $('#btn-submit-config-nginx').trigger('click');
+
                 $('#frm-config-nginx input[type="text"]').each(function () {
-                    if ($(this).val() == '') {
+                    if (!document.getElementById($(this).attr('id')).validity.valid) {
                         error++;
                     }
                 });
             }
 
             if (error) {
-                return alert('Missing information to create new website!');
+                return false;
             }
 
-            create_website_status.text("Creating website... Please do not use the browser refresh or navigate to other page while creating!").css('color', 'blue');
-            create_website_status.css('display', 'block');
-            create_website_process.css('display', 'block');
-            form_create_website.hide();
-            form_config_nginx.hide();
-            modal_footer.children().remove();
+            // Validate on server
+            $.ajax({
+                url: '/websites/validate',
+                type: 'post',
+                data: form_create_website.serialize() + '&' + form_config_nginx.serialize()
+            }).done(function (result, status) {
+                if(result != 'success'){
+                    if (result.code == '127'){
+                        alert('Location invalid. Directory is not exist!');
+                    }else if(result.code == '128'){
+                        alert('Location invalid. Directory is not empty!');
+                    }else{
+                        alert('File config already exists');
+                    }
+                }else{
+                    create_website_status.text("Creating website... Please do not use the browser refresh or navigate to other page while creating!").css('color', 'blue');
+                    create_website_status.css('display', 'block');
+                    create_website_process.css('display', 'block');
+                    form_create_website.hide();
+                    form_config_nginx.hide();
+                    modal_footer.children().remove();
 
-            socket.emit('create_website', form_create_website.serializeArray());
+                    socket.emit('create_website', form_create_website.serializeArray());
+                }
+            }).fail(function (error, status) {
+                alert("Error connect to server");
+            });
         }
 
         function updateWebsites(use_nignx) {
@@ -236,9 +298,9 @@
                             '<div>Location: ' + $('#location').val() + '</div>' +
                             '<div>Database: ' + $('#database_name').val() + '</div>';
 
-                    if (use_nignx){
+                    if (use_nignx) {
                         html += '<div>Listen by Nginx</div>';
-                    }else{
+                    } else {
                         html += '<div>Listen port: ' + $('#listen_port').val() + '</div>';
                     }
 
@@ -258,14 +320,7 @@
                 form_config_nginx.find('input[type="text"]').val('');
                 $('#use_nginx').prop('checked', false);
 
-                create_website_status.text('');
-                create_website_status.css('display', 'none');
-                create_website_process.html('');
-                create_website_process.css('display', 'none');
-
-                var footer = '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
-                        '<button type="button" class="btn btn-primary" onclick="createWebsite()">Save changes</button>';
-                modal_footer.html(footer);
+                resetStatus();
 
                 // Alert
                 $('#alert-msg').html('<div class="alert-success">New website was created</div>');

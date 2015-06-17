@@ -7,10 +7,10 @@ listen_port=$5
 root_path=$6
 upstream=$7
 
-if [ -f "/etc/nginx/conf.d/${file_name}" ]; then
-    echo -n "exists"
-    return
-fi
+#if [ -f "/etc/nginx/conf.d/${file_name}" ]; then
+#    echo -n "exists"
+#    return
+#fi
 
 check_active=`./shell_scripts/nginx/check_active.sh $os_id $os_version`
 if [ -z "$check_active" ]; then
